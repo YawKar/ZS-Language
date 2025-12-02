@@ -76,4 +76,10 @@ struct Forest {
     DifRoot *trees;
 };
 
+struct Stack_Info {
+    DifNode_t **data;
+    ssize_t size;
+    ssize_t capacity;
+};
+
 #endif //STRUCTS_H_

@@ -12,11 +12,9 @@
 
 #include "Enums.h"
 #include "Structs.h"
-//#include "/Users/zarinasharipova/Differenciator/Differentiate.h"
 #include "LanguageFunctions.h"
 #include "DoGraph.h"
-// #include "DifFunctions.h"
-// #include "Calculate.h"
+
 static long long SizeOfFile(const char *filename);
 static char *ReadToBuf(const char *filename, FILE *file, size_t filesize);
 static void DoBufRead(FILE *file, const char *filename, FileInfo *Info);
@@ -44,6 +42,7 @@ DifNode_t *GetGoal(DifRoot *root, const char **string, VariableArr *arr, size_t 
 static DifNode_t *GetExpression(DifRoot *root, const char **string, VariableArr *arr, size_t *pos);
 static DifNode_t *GetTerm(DifRoot *root, const char **string, VariableArr *arr, size_t *pos);
 static DifNode_t *GetPrimary(DifRoot *root, const char **string, VariableArr *arr, size_t *pos);
+static DifNode_t *GetPower(DifRoot *root, const char **string, VariableArr *arr, size_t *pos);
 static DifNode_t *GetAssignment(DifRoot *root, const char **string, VariableArr *arr, size_t *pos);
 static DifNode_t *GetOp(DifRoot *root, const char **string, VariableArr *arr, size_t *pos);
 
@@ -155,27 +154,18 @@ static DifNode_t *GetExpression(DifRoot *root, const char **string, VariableArr 
 }
 
 static DifNode_t *GetTerm(DifRoot *root, const char **string, VariableArr *arr, size_t *pos) {
-    assert(root);
-    assert(string);
-    assert(arr);
-    assert(pos);
+    CHECK_NULL_RETURN(val, GetPower(root, string, arr, pos));
 
-    CHECK_NULL_RETURN(val, GetPrimary(root, string, arr, pos));
-    root->size ++;
-
-    while (**string == '*' || **string == '/' || **string == '^') {
-        int op = **string;
+    while (**string == '*' || **string == '/') {
+        char op = **string;
         (*string)++;
-        CHECK_NULL_RETURN(val2, GetPrimary(root, string, arr, pos));
 
-        if (op == '*') {
+        CHECK_NULL_RETURN(val2, GetPower(root, string, arr, pos));
+
+        if (op == '*')
             val = MUL_(val, val2);
-        } else if (op == '/') {
+        else
             val = DIV_(val, val2);
-        } else if (op == '^') {
-            val = POW_(val, val2);
-        }
-        root->size += 1;
     }
 
     return val;
@@ -207,11 +197,6 @@ static DifNode_t *GetPrimary(DifRoot *root, const char **string, VariableArr *ar
     }
 
     return GetString(root, string, arr, pos);
-    // if (value_operation) {
-    //     return value_operation;
-    // }
-    //return GetString(root, string, arr, pos);
-    return NULL;
 }
 
 static DifNode_t *GetAssignment(DifRoot *root, const char **string, VariableArr *arr, size_t *pos) {
@@ -262,21 +247,36 @@ static DifNode_t *GetIf(DifRoot *root, const char **string, VariableArr *arr, si
     }
     (*string)++;
 
-    if (**string == '{') {
-        (*string)++;
-        DifNode_t *body = GetOp(root, string, arr, pos);
-        if (!body) {
-            fprintf(stderr, "SYNTAX_ERROR_IF: expected statements in body\n");
-            return NULL;
-        }
-        if (**string != '}') {
-            fprintf(stderr, "SYNTAX_ERROR_IF: expected '}'\n");
-            return NULL;
-        }
-        (*string)++;
-        return NEWOP(kOperationIf, cond, body);
+    if (**string != '{')
+        return NULL;
+
+    (*string)++;
+
+    DifNode_t *first = GetOp(root, string, arr, pos);
+    if (!first) {
+        fprintf(stderr, "SYNTAX_ERROR_IF: expected statements in body\n");
+        return NULL;
     }
-    return NULL;
+    DifNode_t *last = first;
+
+    while (**string == ';') {
+        (*string)++;
+        DifNode_t *next = GetOp(root, string, arr, pos);
+        if (!next) {
+            fprintf(stderr, "SYNTAX_ERROR_IF: expected statement after ';' inside if-body\n");
+            return NULL;
+        }
+
+        last = NewNode(root, kOperation, (Value){ .operation = kOperationThen }, last, next, arr);
+    }
+
+    if (**string != '}') {
+        fprintf(stderr, "SYNTAX_ERROR_IF: expected '}' at end of if-body\n");
+        return NULL;
+    }
+    (*string)++;
+
+    return NewNode(root, kOperation, (Value){ .operation = kOperationIf }, cond, last, arr);
 }
 
 static DifNode_t *GetWhile(DifRoot *root, const char **string, VariableArr *arr, size_t *pos) {
@@ -330,7 +330,7 @@ static DifNode_t *GetWhile(DifRoot *root, const char **string, VariableArr *arr,
         }
         (*string)++;
 
-        return NEWOP(kOperationWhile, cond, first);
+        return NEWOP(kOperationWhile, cond, last);
     }
     return NULL;
 
@@ -357,6 +357,23 @@ static DifNode_t *GetOp(DifRoot *root, const char **string, VariableArr *arr, si
 
     *string = save;
     return NULL;
+}
+
+static DifNode_t *GetPower(DifRoot *root, const char **string, VariableArr *arr, size_t *pos) {
+    assert(root);
+    assert(string);
+    assert(arr);
+    assert(pos);
+
+    CHECK_NULL_RETURN(val, GetPrimary(root, string, arr, pos));
+
+    while (**string == '^') {
+        (*string)++;
+        CHECK_NULL_RETURN(val2, GetPower(root, string, arr, pos));
+        val = POW_(val, val2);
+    }
+
+    return val;
 }
 
 static DifNode_t *GetNumber(DifRoot *root, const char **string) {
@@ -411,7 +428,7 @@ static DifNode_t *GetString(DifRoot *root, const char **string, VariableArr *arr
 
         (*string)++;
 
-        fprintf(stderr, "buf: %s, string: %s", buf, *string);
+        fprintf(stderr, "buf: %s, string: %s\n", buf, *string);
         op_node = GetOperation(root, string, arr, pos, buf);
         if (op_node) {
             free(buf);
@@ -538,21 +555,27 @@ static char *ReadToBuf(const char *filename, FILE *file, size_t filesize) {
         return NULL;
     }
 
-    size_t bytes_read = fread(buf_in, sizeof(buf_in[0]), filesize, file);
-    if (bytes_read == 0) {
-        buf_in[0] = '\n';
-        buf_in[1] = '\0';
+    size_t bytes_read = fread(buf_in, 1, filesize, file);
 
-    } else {
-        if (buf_in[bytes_read - 1] != '\n') {
-            buf_in[bytes_read] = '\n';
-            bytes_read++;
-        }
-
-        buf_in[bytes_read] = '\0';
+    char *buf_out = (char *) calloc (bytes_read + 1, 1);
+    if (!buf_out) {
+        fprintf(stderr, "ERROR while calloc buf_out.\n");
+        free(buf_in);
+        return NULL;
     }
 
-    return buf_in;
+    size_t j = 0;
+    for (size_t i = 0; i < bytes_read; i++) {
+        if (buf_in[i] != '\n' && buf_in[i] != ' ') {
+            buf_out[j++] = buf_in[i];
+        }
+    }
+
+    buf_out[j] = '\0';
+
+    free(buf_in);
+
+    return buf_out;
 }
 
 static void DoBufRead(FILE *file, const char *filename, FileInfo *Info) {

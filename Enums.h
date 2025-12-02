@@ -54,4 +54,11 @@ enum DiffModes {
     kExit            = 7,
 };
 
+enum Realloc_Mode {
+    kIncrease,
+    kDecrease,
+    kNoChange,
+    kIncreaseZero,
+};
+
 #endif //ENUMS_H_
