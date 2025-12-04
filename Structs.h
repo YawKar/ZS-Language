@@ -15,10 +15,15 @@ struct VariableInfo {
     double variable_value;
 };
 
+struct String {
+    const char *variable_name;
+    VariableInfo *variable_pointer;
+};
+
 union Value {
     OperationTypes operation;
     double number;
-    VariableInfo *variable;
+    struct String variable;
 };
 
 struct FileInfo {

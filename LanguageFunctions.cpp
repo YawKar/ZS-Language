@@ -128,26 +128,6 @@ DifNode_t *NewNode(DifRoot *root, DifTypes type, Value value, DifNode_t *left, D
         new_node->value.number = value.number;
         break;
 
-    case kVariable: {
-        VariableInfo *addr = NULL;
-        for (size_t i = 0; i < Variable_Array->size; i++) {
-            if (strcmp(value.variable->variable_name,
-                       Variable_Array[i].var_array->variable_name) == 0) {
-                addr = Variable_Array[i].var_array;
-                break;
-            }
-        }
-
-        if (!addr) {
-            fprintf(stderr, "Unknown variable: %s\n",
-                    value.variable->variable_name);
-            return NULL;
-        }
-
-        new_node->value.variable = addr;
-        break;
-    }
-
     case kOperation:
         new_node->value.operation = value.operation;
         new_node->left = left;

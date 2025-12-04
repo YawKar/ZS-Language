@@ -39,8 +39,13 @@ enum OperationTypes {
     kOperationTgh,
     kOperationIs,
     kOperationIf,
+    kOperationElse,
     kOperationWhile,
     kOperationThen,
+    kOperationParOpen,
+    kOperationParClose,
+    kOperationBraceOpen,
+    kOperationBraceClose,
     kOperationNone,
 };
 

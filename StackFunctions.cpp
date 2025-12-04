@@ -95,3 +95,9 @@ DifErrors StackDtor(Stack_Info *stk, FILE *open_log_file) {
 
     return kSuccess;
 }
+
+DifNode_t *GetStackElem(Stack_Info *stk, size_t pos) {
+    assert(stk);
+
+    return stk->data[pos];
+}
