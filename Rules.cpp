@@ -461,7 +461,7 @@ static DifNode_t *GetElse(DifRoot *root, Stack_Info *tokens, VariableArr *arr, s
         else {
             last = stmt;
         }
-        fprintf(stderr, "else%p\n", last);
+        //fprintf(stderr, "else%p\n", last);
     }
 
     tok = GetStackElem(tokens, *tokens_pos);
@@ -559,6 +559,14 @@ static DifNode_t *GetWhile(DifRoot *root, Stack_Info *tokens, VariableArr *arr, 
     return while_node;
 }
 
+DifNode_t *GetFunction(DifRoot *root, Stack_Info *tokens, VariableArr *arr, size_t *pos, size_t *tokens_pos) {
+    assert(root);
+    assert(tokens);
+    assert(arr);
+    assert(pos);
+
+
+}
 DifNode_t *GetPower(DifRoot *root, Stack_Info *tokens, VariableArr *arr, size_t *pos, size_t *tokens_pos) {
     assert(root);
     assert(tokens);
@@ -626,21 +634,6 @@ static DifNode_t *GetString(DifRoot *root, Stack_Info *tokens, VariableArr *arr,
     return node;
 }
 
-
-// static DifNode_t *GetOperation(DifRoot *root, Stack_Info *tokens, VariableArr *arr, size_t *tokens_pos) {
-//     assert(root);
-//     assert(tokens);
-//     assert(arr);
-
-//     DifNode_t *node = GetStackElem(tokens, *tokens_pos);
-//     if (node->type == kOperation) {
-//         (*tokens_pos)++;
-//     } else {
-//         return NULL;
-//     }
-
-//     return NULL;
-// }
 
 #undef NEWN
 #undef ADD_

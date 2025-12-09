@@ -17,4 +17,5 @@ DifErrors ResizeArray(VariableArr *arr);
 DifErrors DtorVariableArray(VariableArr *arr);
 DifNode_t *NewVariable(DifRoot *root, const char *variable, VariableArr *VariableArr);
 
+DifErrors PrintAST(DifNode_t *node, FILE *file);
 #endif //LANGUAGE_FUNCTIONS_H_

@@ -19,6 +19,9 @@ int main(void) {
     CHECK_ERROR_RETURN(ReadInfix(&root, &dump_info, &Variable_Array, "input.txt", out));
     PrintTree(root.root, out);
 
+    FILE_OPEN_AND_CHECK(ast_file, "ast.txt", "w");
+    PrintAST(root.root, ast_file);
+    fclose(ast_file);
     DtorVariableArray(&Variable_Array);
     fclose(out);
     //TreeDtor(&root);

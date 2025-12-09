@@ -177,3 +177,66 @@ DifNode_t *NewVariable(DifRoot *root, const char *variable, VariableArr *Variabl
 
     return new_node;
 }
+
+const char *ConvertEnumToOperation(OperationTypes type) {
+    switch (type) {
+        case kOperationAdd:       return "+";
+        case kOperationSub:       return "-";
+        case kOperationMul:       return "*";
+        case kOperationDiv:       return "/";
+        case kOperationPow:       return "^";
+        case kOperationSin:       return "sin";
+        case kOperationCos:       return "cos";
+        case kOperationTg:        return "tg";
+        case kOperationLn:        return "ln";
+        case kOperationArctg:     return "arctg";
+        case kOperationSinh:      return "sh";
+        case kOperationCosh:      return "ch";
+        case kOperationTgh:       return "th";
+        case kOperationIs:        return "=";
+        case kOperationIf:        return "if";
+        case kOperationElse:      return "else";
+        case kOperationWhile:     return "while";
+        case kOperationThen:      return ";";
+        case kOperationParOpen:   return "(";
+        case kOperationParClose:  return ")";
+        case kOperationBraceOpen: return "{";
+        case kOperationBraceClose:return "}";
+        case kOperationNone:      return "none";
+    }
+    
+    return NULL;
+}
+
+DifErrors PrintAST(DifNode_t *node, FILE *file) {
+    if (!node) {
+        fprintf(file, "nil");
+        return kSuccess;
+    }
+    assert(file);
+
+    fprintf(file, "( ");
+    
+    switch (node->type) {
+        case kNumber:
+            fprintf(file, "\"%lf\"", node->value.number);
+            break;
+        case kVariable:
+            fprintf(file, "\"%s\"", node->value.variable->variable_name);
+            break;
+        case kOperation:
+            fprintf(file, "\"_%s_\"", ConvertEnumToOperation(node->value.operation));
+            break;
+        default:
+            fprintf(file, "\"UNKNOWN\"");
+            break;
+    }
+    
+    fprintf(file, " ");
+    PrintAST(node->left, file);
+    fprintf(file, " ");
+    PrintAST(node->right, file);
+    fprintf(file, " )");
+    
+    return kSuccess;
+}
