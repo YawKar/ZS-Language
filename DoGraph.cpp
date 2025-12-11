@@ -108,6 +108,8 @@ static const char *PrintOperationType(const DifNode_t *node) {
         return "VAR";
     case (kOperation):
         return "OP";
+    default: 
+        return NULL;
     }
 }
 
@@ -151,7 +153,7 @@ static GraphOperation PrintExpressionType(const DifNode_t *node) {
             return {";", "pink"};
         case (kOperationWhile):
             return {"while", "rosybrown"};
-        case (kFunction):
+        case (kOperationFunction):
             return {"func", "skyblue"};
         case (kOperationCall):
             return {"call func", "slategray1"};
@@ -160,7 +162,7 @@ static GraphOperation PrintExpressionType(const DifNode_t *node) {
         case (kOperationWrite):
             return {"write", "	tan"};
         case (kOperationRead):
-        
+
         case (kOperationParOpen):
         case (kOperationParClose):
         case (kOperationBraceOpen):

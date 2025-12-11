@@ -206,6 +206,9 @@ const char *ConvertEnumToOperation(OperationTypes type) {
         case kOperationParClose:  return ")";
         case kOperationBraceOpen: return "{";
         case kOperationBraceClose:return "}";
+        case kOperationWrite: return "print";
+        case kOperationRead: return "scanf";
+
         case kOperationNone:      return "none";
     }
     

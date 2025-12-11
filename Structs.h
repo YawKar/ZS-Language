@@ -18,7 +18,8 @@ struct VariableInfo {
 union Value {
     OperationTypes operation;
     double number;
-    size_t pos;
+    
+    size_t pos; //
 };
 
 struct FileInfo {

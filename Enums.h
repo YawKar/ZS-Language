@@ -21,6 +21,7 @@ enum DifTypes {
     kOperation,
     kVariable,
     kNumber,
+    kFunction,
 };
 
 enum OperationTypes {
@@ -43,7 +44,7 @@ enum OperationTypes {
     kOperationWhile,
     kOperationThen,
     kOperationComma,
-    kFunction,
+    kOperationFunction,
     kOperationCall,
     kOperationWrite,
     kOperationRead,
