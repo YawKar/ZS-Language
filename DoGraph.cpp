@@ -154,7 +154,7 @@ static GraphOperation PrintExpressionType(const DifNode_t *node) {
         case (kOperationWhile):
             return {"while", "rosybrown"};
         case (kOperationFunction):
-            return {"func", "skyblue"};
+            return {"func declare", "skyblue"};
         case (kOperationCall):
             return {"call func", "slategray1"};
         case (kOperationComma):

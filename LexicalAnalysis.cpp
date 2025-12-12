@@ -15,6 +15,7 @@
 #define WHILE "while"
 #define PRINT "print"
 #define SCANF "scanf"
+#define DECLARE "func"
 
 #define NEWN(num) NewNode(root, kNumber, ((Value){ .number = (num)}), NULL, NULL)
 #define NEWV(name) NewVariable(root, name, Variable_Array)
@@ -137,6 +138,13 @@ size_t CheckAndReturn(DifRoot *root, const char **string, Stack_Info *tokens, Va
             StackPush(tokens, NEWOP(kOperationRead, NULL, NULL), stderr);
             cnt++;
             (*string) += strlen(SCANF);
+            continue;
+        }
+        if (strncmp(*string, DECLARE, strlen(DECLARE)) == 0) {
+            StackPush(tokens, NEWOP(kOperationFunction, NULL, NULL), stderr);
+            cnt++;
+            printf("A");
+            (*string) += strlen(DECLARE);
             continue;
         }
 

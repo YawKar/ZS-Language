@@ -21,7 +21,6 @@ enum DifTypes {
     kOperation,
     kVariable,
     kNumber,
-    kFunction,
 };
 
 enum OperationTypes {
