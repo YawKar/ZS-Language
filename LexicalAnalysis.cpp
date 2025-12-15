@@ -143,7 +143,6 @@ size_t CheckAndReturn(DifRoot *root, const char **string, Stack_Info *tokens, Va
         if (strncmp(*string, DECLARE, strlen(DECLARE)) == 0) {
             StackPush(tokens, NEWOP(kOperationFunction, NULL, NULL), stderr);
             cnt++;
-            printf("A");
             (*string) += strlen(DECLARE);
             continue;
         }

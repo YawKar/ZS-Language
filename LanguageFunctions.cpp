@@ -161,15 +161,16 @@ DifNode_t *NewVariable(DifRoot *root, const char *variable, VariableArr *Variabl
     root->size ++;
     new_node->type = kVariable;
     size_t pos = 0;
+    bool found_flag = false;
     VariableInfo *addr = NULL;
-
     for (size_t i = 0; i < VariableArr->size; i++) {
-        if (strncmp(variable, VariableArr->var_array[i].variable_name, strlen(variable)) == 0) {
+        if (strcmp(variable, VariableArr->var_array[i].variable_name) == 0) {
             pos = i;
+            found_flag = true;
         }
     }
 
-    if (pos == 0) {
+    if (!found_flag) {
         ResizeArray(VariableArr);
         VariableArr->var_array[VariableArr->size].variable_name = variable;
         pos = VariableArr->size;

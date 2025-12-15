@@ -32,7 +32,7 @@ void PrintStatement(FILE *file, DifNode_t *stmt, VariableArr *arr, int ram_base)
 
                         int var_idx = -1;
                         for (size_t i = 0; i < arr->size; i++) {
-                            if (strcmp(arr->var_array[i].variable_name, arr->var_array[stmt->left->value.pos].variable_name) == 0) {
+                            if (strncmp(arr->var_array[i].variable_name, arr->var_array[stmt->left->value.pos].variable_name, strlen(arr->var_array[i].variable_name)) == 0) {
                                 var_idx = (int)i;
                                 break;
                             }
@@ -61,7 +61,7 @@ void PrintStatement(FILE *file, DifNode_t *stmt, VariableArr *arr, int ram_base)
 
                         PrintStatement(file, stmt->right, arr, ram_base);
 
-                        PRINT(file, ":F_%d", lbl_false);
+                        PRINT(file, "\n:F_%d", lbl_false);
                     }
                     break;
 
@@ -135,7 +135,7 @@ void PrintFunction(FILE *file, DifNode_t *func_node, VariableArr *arr) {
     int ram_base = 100; //
     int param_count = 0;
 
-    PRINT(file, ":%s", arr->var_array[func_node->left->value.pos].variable_name);
+    PRINT(file, "\n:%s", arr->var_array[func_node->left->value.pos].variable_name);
 
     DifNode_t *args = func_node->right->left;
     for (DifNode_t *arg = args; arg != NULL; arg = arg->right) {

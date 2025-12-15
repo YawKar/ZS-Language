@@ -32,7 +32,6 @@ int main(void) {
     DifRootCtor(&root1);
     DifNode_t new_node = {};
     DifNode_t *new_node_adr = &new_node;
-    size_t pos = 0;
 
     FILE_OPEN_AND_CHECK(asm_file, "asm.asm", "w");
     PrintProgram(asm_file, root.root, &Variable_Array);
