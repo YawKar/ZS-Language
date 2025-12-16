@@ -312,7 +312,7 @@ static DifNode_t *GetFunctionDeclare(DifRoot *root, Stack_Info *tokens, Variable
     if (arr->var_array[func_name->value.pos].variable_value != (int)cnt) {
         if (arr->var_array[func_name->value.pos].variable_value == POISON) arr->var_array[func_name->value.pos].variable_value = (int)cnt;
         else {
-            fprintf(stderr, "Number of function arguments is not the same as in declaration: had to be %d, got %d\n", 
+            fprintf(stderr, "Number of function arguments is not the same as in declaration: had to be %d, got %zu\n", 
                 arr->var_array[func_name->value.pos].variable_value, cnt);
             return NULL;
         }
@@ -324,7 +324,7 @@ static DifNode_t *GetFunctionDeclare(DifRoot *root, Stack_Info *tokens, Variable
     DifNode_t *body_root = ParseFunctionBody(root, tokens, arr, tokens_pos);
     
     CHECK_EXPECTED_TOKEN(token, IsThatOperation(token, kOperationBraceClose),
-        fprintf(stderr, "SYNTAX_ERROR_FUNC: expected '}' at end of function body %d.\n", *tokens_pos));
+        fprintf(stderr, "SYNTAX_ERROR_FUNC: expected '}' at end of function body %zu.\n", *tokens_pos));
     
     return NEWOP(kOperationFunction, func_name, NEWOP(kOperationThen, args_root, body_root));
 }
@@ -352,7 +352,6 @@ static DifNode_t *GetFunctionCall(DifRoot *root, Stack_Info *tokens, VariableArr
 
     DifNode_t *args_root = NULL;
     DifNode_t *rightmost = NULL;
-    int cnt = 0;
 
     while (true) {
         DifNode_t *next_tok = GetStackElem(tokens, *tokens_pos);
@@ -379,6 +378,7 @@ static DifNode_t *GetFunctionCall(DifRoot *root, Stack_Info *tokens, VariableArr
             return NULL;
         }
         
+        int cnt = 0;
         cnt++;
         if (!args_root) {
             args_root = arg;
@@ -392,6 +392,7 @@ static DifNode_t *GetFunctionCall(DifRoot *root, Stack_Info *tokens, VariableArr
             rightmost = comma_node;
         }
     }
+    // проверка что функция содержит правильное количество аргументов
 
     return NEWOP(kOperationCall, name_token, args_root);
 }
@@ -526,7 +527,6 @@ DifNode_t *GetAssignment(DifRoot *root, Stack_Info *tokens, VariableArr *arr, si
         return NULL;
     }
     (*tokens_pos)++;
-    size_t value_pos = *tokens_pos;
     DifNode_t *value = NULL;
 
     DifNode_t *tok = GetStackElem(tokens, *tokens_pos);
