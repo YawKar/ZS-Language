@@ -129,6 +129,8 @@ static GraphOperation PrintExpressionType(const DifNode_t *node) {
             return {"POW", "darkseagreen3"};
         case (kOperationSin):
             return {"SIN", "khaki3"};
+        case (kOperationSQRT):
+            return {"SQRT", "khaki3"};
         case (kOperationCos):
             return {"COS", "cornsilk3"};
         case (kOperationTg):
@@ -175,6 +177,8 @@ static GraphOperation PrintExpressionType(const DifNode_t *node) {
             return {"AEQ", "lightgoldenrod"};
         case (kOperationE):
             return {"E", "lightgoldenrod"};
+        case (kOperationNE):
+            return {"NE", "lightgoldenrod"};
 
         case (kOperationParOpen):
         case (kOperationParClose):

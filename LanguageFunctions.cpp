@@ -250,6 +250,7 @@ static const char *ConvertEnumToOperation(DifNode_t *node, VariableArr *arr) {
         case kOperationDiv:       return "/";
         case kOperationPow:       return "^";
         case kOperationSin:       return "sin";
+        case kOperationSQRT:      return "sqrt";
         case kOperationCos:       return "cos";
         case kOperationTg:        return "tg";
         case kOperationLn:        return "ln";
@@ -277,6 +278,7 @@ static const char *ConvertEnumToOperation(DifNode_t *node, VariableArr *arr) {
         case kOperationA:         return ">";
         case kOperationAE:        return ">=";
         case kOperationE:         return "==";
+        case kOperationNE:        return "!=";
 
         case kOperationNone:      return "none";
     }

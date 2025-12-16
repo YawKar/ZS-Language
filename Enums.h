@@ -52,13 +52,16 @@ enum OperationTypes {
     kOperationAE        = 24,
     kOperationA         = 25,
     kOperationE         = 26,
+    kOperationNE        = 27,
+    
+    kOperationSQRT      = 28,
 
-    kOperationWrite     = 27,
-    kOperationRead      = 28,
-    kOperationParOpen   = 29,
-    kOperationParClose  = 30,
-    kOperationBraceOpen = 31,
-    kOperationBraceClose= 32,
+    kOperationWrite     = 29,
+    kOperationRead      = 30,
+    kOperationParOpen   = 31,
+    kOperationParClose  = 32,
+    kOperationBraceOpen = 33,
+    kOperationBraceClose= 34,
     kOperationNone      = -1,
 };
 

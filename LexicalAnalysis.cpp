@@ -71,6 +71,7 @@ size_t CheckAndReturn(DifRoot *root, const char **string, Stack_Info *tokens, Va
         CHECK_STROKE_AND_PUSH("<=", kOperationBE);
         CHECK_STROKE_AND_PUSH(">=", kOperationAE);
         CHECK_STROKE_AND_PUSH("==", kOperationE);
+        CHECK_STROKE_AND_PUSH("!=", kOperationNE);
 
         CHECK_SYMBOL_AND_PUSH('<', kOperationB);
         CHECK_SYMBOL_AND_PUSH('>', kOperationA);
@@ -83,6 +84,7 @@ size_t CheckAndReturn(DifRoot *root, const char **string, Stack_Info *tokens, Va
         CHECK_SYMBOL_AND_PUSH('^', kOperationPow);
 
         CHECK_STROKE_AND_PUSH("sin", kOperationSin);
+        CHECK_STROKE_AND_PUSH("sqrt", kOperationSin);
         CHECK_STROKE_AND_PUSH(IF, kOperationIf);
         CHECK_STROKE_AND_PUSH(ELSE, kOperationElse);
         CHECK_STROKE_AND_PUSH(WHILE, kOperationWhile);

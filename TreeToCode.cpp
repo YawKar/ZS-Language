@@ -41,6 +41,7 @@ static const OpEntry OP_TABLE[] = {
     { "^",      kOperationPow },
 
     { "sin",    kOperationSin },
+    { "sqrt",   kOperationSQRT },
     { "cos",    kOperationCos },
     { "tg",     kOperationTg },
     { "ln",     kOperationLn },
@@ -64,6 +65,7 @@ static const OpEntry OP_TABLE[] = {
     { ">",       kOperationA },
     { ">=",      kOperationAE },
     { "==",      kOperationE },
+    { "!=",      kOperationNE },
 
     { ";",      kOperationThen },
     { ",",       kOperationComma },
