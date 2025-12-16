@@ -69,6 +69,7 @@ size_t CheckAndReturn(DifRoot *root, const char **string, Stack_Info *tokens, Va
         CHECK_SYMBOL_AND_PUSH('}', kOperationBraceClose);
 
         CHECK_STROKE_AND_PUSH("<=", kOperationBE);
+        
         CHECK_SYMBOL_AND_PUSH('=', kOperationIs);
         CHECK_SYMBOL_AND_PUSH(';', kOperationThen);
         CHECK_SYMBOL_AND_PUSH(',', kOperationComma);
