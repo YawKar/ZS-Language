@@ -258,7 +258,11 @@ static const char *ConvertEnumToOperation(DifNode_t *node, VariableArr *arr) {
         case kOperationComma:     return ",";
         case kOperationCall:      return "call";
         case kOperationFunction:  return "func";
+        case kOperationB:         return "<";
         case kOperationBE:        return "<=";
+        case kOperationA:         return ">";
+        case kOperationAE:        return ">=";
+        case kOperationE:         return "==";
 
         case kOperationNone:      return "none";
     }

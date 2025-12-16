@@ -577,7 +577,8 @@ static DifNode_t *GetIf(DifRoot *root, Stack_Info *tokens, VariableArr *arr, siz
     }
 
     DifNode_t *sign = GetStackElem(tokens, *tokens_pos);
-    if (IsThatOperation(sign, kOperationBE)) {
+    if (IsThatOperation(sign, kOperationBE) || IsThatOperation(sign, kOperationB) || IsThatOperation(sign, kOperationAE) 
+            || IsThatOperation(sign, kOperationA) || IsThatOperation(sign, kOperationE)) {
         (*tokens_pos)++;
         DifNode_t *number = GetExpression(root, tokens, arr, tokens_pos);
         if (!number) {

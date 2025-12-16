@@ -58,6 +58,12 @@ static const OpEntry OP_TABLE[] = {
     { "print",  kOperationWrite},
     { "scanf",  kOperationRead},
 
+    {"<", kOperationB},
+    {"<=", kOperationBE},
+    {">", kOperationA},
+    {">=", kOperationAE},
+    {"==", kOperationE},
+
     { ";",      kOperationThen },
     {",",       kOperationComma},
 

@@ -46,7 +46,13 @@ enum OperationTypes {
     kOperationFunction,
     kOperationCall,
     kOperationReturn,
+
+    kOperationB,
     kOperationBE,
+    kOperationAE,
+    kOperationA,
+    kOperationE,
+
     kOperationWrite,
     kOperationRead,
     kOperationParOpen,

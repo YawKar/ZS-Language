@@ -165,8 +165,16 @@ static GraphOperation PrintExpressionType(const DifNode_t *node) {
             return {"read", "tan"};
         case (kOperationReturn):
             return {"return", "tan"};
+        case (kOperationB):
+            return {"B", "lightgoldenrod"};
         case (kOperationBE):
-            return {"LEQ", "lightgoldenrod"};
+            return {"BEQ", "lightgoldenrod"};
+        case (kOperationA):
+            return {"A", "lightgoldenrod"};
+        case (kOperationAE):
+            return {"AEQ", "lightgoldenrod"};
+        case (kOperationE):
+            return {"E", "lightgoldenrod"};
 
         case (kOperationParOpen):
         case (kOperationParClose):
