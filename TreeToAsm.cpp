@@ -22,19 +22,21 @@ static void FindVarPos(FILE *file, VariableArr *arr, DifNode_t *node, int ram_ba
     int var_idx = -1;
     for (size_t i = 0; i < arr->size; i++) {
         if (strncmp(arr->var_array[i].variable_name, arr->var_array[node->value.pos].variable_name, strlen(arr->var_array[i].variable_name)) == 0) {
-            if (arr->var_array[i].pos_in_code == 0) {
+            if (arr->var_array[i].pos_in_code == -1) {
                 var_idx = arr->var_array[i].pos_in_code = ram_base;
-                    PRINT(file, "PUSH %d", arr->var_array[i].variable_value);
-                    PRINT(file, "POPMN [RAX]");
-                    PRINT(file, "PUSHR RAX");
-                    PRINT(file, "PUSH 1");
-                    PRINT(file, "ADD");
-                    PRINT(file, "POPR RAX");
+                //PRINT(file, "PUSH %d", arr->var_array[node->value.pos].variable_value);
+                //printf("%d %d\n", node->value.pos, arr->var_array[node->value.pos].variable_value);
+                PRINT(file, "POPMN [%d]", arr->var_array[node->value.pos].pos_in_code);
+                PRINT(file, "PUSHR RAX");
+                PRINT(file, "PUSH 1");
+                PRINT(file, "ADD");
+                PRINT(file, "POPR RAX");
+            } else {
+                var_idx = arr->var_array[i].pos_in_code;
+                printf("aaa\n");
+                PRINT(file, "POPMN [%d]", arr->var_array[node->value.pos].pos_in_code);
+                break;
             }
-            var_idx = arr->var_array[i].pos_in_code;
-            PRINT(file, "PUSH %d", arr->var_array[i].variable_value);
-            PRINT(file, "POPMN [%d]", var_idx);
-            break;
         }
     }
     if (var_idx == -1) { fprintf(stderr, "Unknown variable\n"); exit(1); }
@@ -87,7 +89,8 @@ void PrintStatement(FILE *file, DifNode_t *stmt, VariableArr *arr, int ram_base)
                         PrintExpr(file, stmt->left, arr, ram_base);
                         PRINT(file, "PUSH 0");
                         PRINT(file, "SUB");
-                        PRINT(file, "JE :F_%d", lbl_false);
+
+                        PRINT(file, "JE :F_%d", lbl_false); //
 
                         PrintStatement(file, stmt->right, arr, ram_base);
 
@@ -125,7 +128,8 @@ void PrintExpr(FILE *file, DifNode_t *expr, VariableArr *arr, int ram_base) {
             break;
         case kVariable: {
                 int var_idx = expr->value.pos;
-                FindVarPos(file, arr, expr, ram_base);
+
+                PRINT(file, "PUSHMN [%d]", arr->var_array[expr->value.pos].pos_in_code);
             }
             break;
         case kOperation:
@@ -179,7 +183,7 @@ void PrintFunction(FILE *file, DifNode_t *func_node, VariableArr *arr) {
         param_count++;
     }
 
-    PRINT(file, "\n:%s", arr->var_array[func_node->left->value.pos].variable_name);
+    if (strcmp("main", arr->var_array[func_node->left->value.pos].variable_name) != 0) PRINT(file, "\n:%s", arr->var_array[func_node->left->value.pos].variable_name);
 
     for (DifNode_t *arg = args; arg != NULL; arg = arg->right) {
         if (arg && arg->type == kVariable) {
@@ -211,7 +215,16 @@ void PrintFunction(FILE *file, DifNode_t *func_node, VariableArr *arr) {
     PRINT(file, "PUSH %d", param_count);
     PRINT(file, "SUB");
     PRINT(file, "POPR RAX");
-    PRINT(file, "RET");
+    if (strcmp("main", arr->var_array[func_node->left->value.pos].variable_name) == 0) PRINT(file, "HLT");
+    else PRINT(file, "RET");
+}
+
+static void CleanPositions(VariableArr *arr) {
+    assert(arr);
+
+    for (size_t i = 0; i < arr->size; i++) {
+        arr->var_array[i].pos_in_code = -1;
+    }
 }
 
 void PrintProgram(FILE *file, DifNode_t *root, VariableArr *arr) {
@@ -219,6 +232,8 @@ void PrintProgram(FILE *file, DifNode_t *root, VariableArr *arr) {
     assert(root);
     assert(arr);
     
+    CleanPositions(arr);
+
     if (root->type == kOperation && root->value.operation == kOperationFunction) {
         PrintFunction(file, root, arr);
     }

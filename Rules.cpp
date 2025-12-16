@@ -245,7 +245,7 @@ static DifNode_t *GetFunctionDeclare(DifRoot *root, Stack_Info *tokens, Variable
     arr->var_array[func_name->value.pos].type = kVarFunction;
     size_t cnt = 0;
     DifNode_t *args_root = ParseFunctionArgs(root, tokens, tokens_pos, &cnt);
-    if (arr->var_array[func_name->value.pos].variable_value != cnt) {
+    if (arr->var_array[func_name->value.pos].variable_value != (int)cnt) {
         if (arr->var_array[func_name->value.pos].variable_value == POISON) arr->var_array[func_name->value.pos].variable_value = (int)cnt;
         else {
             fprintf(stderr, "Number of function arguments is not the same as in declaration: had to be %d, got %d\n", 
@@ -452,7 +452,6 @@ DifNode_t *GetAssignment(DifRoot *root, Stack_Info *tokens, VariableArr *arr, si
 
     DifNode_t *value = GetExpression(root, tokens, arr, tokens_pos);
     if (!value) {
-        arr->var_array[maybe_var->value.pos].variable_value = 1;
         *tokens_pos = save_pos;
         return NULL;
     }
@@ -465,6 +464,9 @@ DifNode_t *GetAssignment(DifRoot *root, Stack_Info *tokens, VariableArr *arr, si
     value->parent = node;
 
     //printf("%zu\n", *tokens_pos);
+    if (arr->var_array[maybe_var->value.pos].variable_value == POISON) {
+        arr->var_array[maybe_var->value.pos].variable_value = value->value.number;
+    }
     return NEWOP(kOperationThen, node, NULL); //
 }
 
@@ -486,6 +488,21 @@ static DifNode_t *GetIf(DifRoot *root, Stack_Info *tokens, VariableArr *arr, siz
         fprintf(stderr, "SYNTAX_ERROR_IF: expected condition\n");
         return NULL;
     }
+
+    DifNode_t *sign = GetStackElem(tokens, *tokens_pos);
+    if (IsThatOperation(sign, kOperationBE)) {
+        (*tokens_pos)++;
+        DifNode_t *number = GetExpression(root, tokens, arr, tokens_pos);
+        if (!number) {
+            fprintf(stderr, "SYNTAX_ERROR_IF: no expression if if written.\n");
+        }
+        sign->left = cond;
+        cond->parent = sign;
+        sign->right = number;
+        number->parent = sign;
+        cond = sign;
+    }
+
 
     CHECK_EXPECTED_TOKEN(tok, IsThatOperation(tok, kOperationParClose),
         fprintf(stderr, "%s", "SYNTAX_ERROR_IF: expected ')'\n"));

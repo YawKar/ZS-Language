@@ -32,6 +32,10 @@ int main(void) {
     DifNode_t new_node = {};
     DifNode_t *new_node_adr = &new_node;
 
+        fprintf(stderr, "%zu\n\n", Variable_Array.size);
+    for (size_t i = 0; i < Variable_Array.size; i++) {
+        fprintf(stderr, "%s %d\n\n", Variable_Array.var_array[i].variable_name, Variable_Array.var_array[i].variable_value);
+    }
     FILE_OPEN_AND_CHECK(asm_file, "asm.asm", "w");
     PrintProgram(asm_file, root.root, &Variable_Array);
     fclose(asm_file);
