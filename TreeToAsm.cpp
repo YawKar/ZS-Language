@@ -228,18 +228,18 @@ void PrintFunction(FILE *file, DifNode_t *func_node, VariableArr *arr) {
     int param_count = 0;
 
     DifNode_t *args = func_node->right->left;
-    for (DifNode_t *arg = args; arg != NULL; arg = arg->right) {
-        if (arg && arg->type == kVariable) {
-            PRINT(file, "PUSH %d", arr->var_array[arg->value.pos].variable_value);
-        }
-        param_count++;
-    }
-    for (DifNode_t *arg = args; arg != NULL; arg = arg->left) {
-        if (arg && arg->type == kVariable) {
-            PRINT(file, "PUSH %d", arr->var_array[arg->value.pos].variable_value);
-        }
-        param_count++;
-    }
+    // for (DifNode_t *arg = args; arg != NULL; arg = arg->right) {
+    //     if (arg && arg->type == kVariable) {
+    //         PRINT(file, "PUSH %d", arr->var_array[arg->value.pos].variable_value);
+    //     }
+    //     param_count++;
+    // }
+    // for (DifNode_t *arg = args; arg != NULL; arg = arg->left) {
+    //     if (arg && arg->type == kVariable) {
+    //         PRINT(file, "PUSH %d", arr->var_array[arg->value.pos].variable_value);
+    //     }
+    //     param_count++;
+    // }
 
     if (strcmp("main", arr->var_array[func_node->left->value.pos].variable_name) != 0) PRINT(file, "\n:%s", arr->var_array[func_node->left->value.pos].variable_name);
 
@@ -250,7 +250,7 @@ void PrintFunction(FILE *file, DifNode_t *func_node, VariableArr *arr) {
             PRINT(file, "PUSHR RAX");
             PRINT(file, "PUSH 1");
             PRINT(file, "ADD");
-            PRINT(file, "POPR RAX");
+            PRINT(file, "POPR RAX\n");
         }
         param_count++;
     }
@@ -260,7 +260,7 @@ void PrintFunction(FILE *file, DifNode_t *func_node, VariableArr *arr) {
             PRINT(file, "PUSHR RAX");
             PRINT(file, "PUSH 1");
             PRINT(file, "ADD");
-            PRINT(file, "POPR RAX");
+            PRINT(file, "POPR RAX\n");
         }
         param_count++;
     }
