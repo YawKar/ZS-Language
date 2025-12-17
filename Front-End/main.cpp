@@ -43,15 +43,15 @@ int main(void) {
     IntStackDtor(&params, stderr);
     fclose(asm_file);
 
-    // size_t pos = 0;
-    // ParseNodeFromString(info.buf_ptr, &pos, root.root, &new_node_adr, &Variable_Array);
-    //     fprintf(stderr, "%zu\n\n", Variable_Array.size);
-    // for (size_t i = 0; i < Variable_Array.size; i++) {
-    //     fprintf(stderr, "%s %d\n\n", Variable_Array.var_array[i].variable_name, Variable_Array.var_array[i].variable_value);
-    // }
-    // root1.root = new_node_adr;
-    // dump_info.tree = &root1;
-    // DoTreeInGraphviz(root1.root, &dump_info, &Variable_Array);
+    size_t pos = 0;
+    ParseNodeFromString(info.buf_ptr, &pos, root.root, &new_node_adr, &Variable_Array);
+        fprintf(stderr, "%zu\n\n", Variable_Array.size);
+    for (size_t i = 0; i < Variable_Array.size; i++) {
+        fprintf(stderr, "%s %d\n\n", Variable_Array.var_array[i].variable_name, Variable_Array.var_array[i].variable_value);
+    }
+    root1.root = new_node_adr;
+    dump_info.tree = &root1;
+    DoTreeInGraphviz(root1.root, &dump_info, &Variable_Array);
 
     FILE_OPEN_AND_CHECK(code_out, "test.txt", "w");
     GenerateCodeFromAST(root1.root, code_out, &Variable_Array, 0);
