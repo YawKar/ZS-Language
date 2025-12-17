@@ -62,6 +62,7 @@ enum OperationTypes {
     kOperationParClose  = 32,
     kOperationBraceOpen = 33,
     kOperationBraceClose= 34,
+    kOperationHLT       = 35,
     kOperationNone      = -1,
 };
 
@@ -85,6 +86,7 @@ enum Realloc_Mode {
 enum VariableModes {
     kVarVariable,
     kVarFunction,
+    kUnknown,
 };
 
 #endif //ENUMS_H_

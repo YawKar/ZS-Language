@@ -26,7 +26,7 @@ DifErrors LangRootCtor(LangRoot *root) {
 DifErrors NodeCtor(LangNode_t **node, Value *value) {
     assert(node);
 
-    *node = (LangNode_t *) calloc (DEFAULT_SIZE, sizeof(LangNode_t));
+    *node = (LangNode_t *) calloc (1, sizeof(LangNode_t));
     if (!*node) {
         fprintf(stderr, "No memory to calloc NODE.\n");
         return kNoMemory;
@@ -90,9 +90,13 @@ DifErrors InitArrOfVariable(VariableArr *arr, size_t capacity) {
         return kNoMemory;
     }
 
-    for (size_t i = 0; i < arr->capacity; i++) {
-        arr->var_array[i].variable_value = -666;
+    for (size_t i = 0; i < capacity; ++i) {
+        arr->var_array[i].variable_name  = NULL;
+        arr->var_array[i].func_made      = NULL;
+        arr->var_array[i].variable_value = POISON;
+        arr->var_array[i].type           = kUnknown;
     }
+
     
     return kSuccess;
 }
@@ -101,16 +105,28 @@ DifErrors ResizeArray(VariableArr *arr)  {
     assert(arr);
 
     if (arr->size + 2 > arr->capacity) {
-        VariableInfo *ptr = (VariableInfo *) realloc (arr->var_array, (arr->capacity += 2) * sizeof(VariableInfo));
-        if (!ptr) {
+        size_t old_capacity = arr->capacity;
+        arr->capacity += 2;
+        
+        VariableInfo *new_array = (VariableInfo *) calloc(arr->capacity, sizeof(VariableInfo));
+        if (!new_array) {
             fprintf(stderr, "Memory error.\n");
             return kNoMemory;
         }
-        arr->var_array = ptr;
-    }
-
-    for (size_t i = arr->size; i < arr->capacity; i++) {
-        arr->var_array[i].variable_value = -666;
+        
+        for (size_t i = 0; i < arr->size; i++) {
+            new_array[i] = arr->var_array[i];
+        }
+        
+        for (size_t i = arr->size; i < arr->capacity; i++) {
+            new_array[i].variable_name  = NULL;
+            new_array[i].func_made      = NULL;
+            new_array[i].variable_value = POISON;
+            new_array[i].type           = kUnknown;
+        }
+        
+        free(arr->var_array);
+        arr->var_array = new_array;
     }
 
     return kSuccess;
@@ -173,7 +189,8 @@ LangNode_t *NewVariable(LangRoot *root, const char *variable, VariableArr *Varia
     bool found_flag = false;
 
     for (size_t i = 0; i < VariableArr->size; i++) {
-        if (strcmp(variable, VariableArr->var_array[i].variable_name) == 0) {
+        const char *name = VariableArr->var_array[i].variable_name;
+        if (name && strcmp(variable, name) == 0) {
             pos = i;
             found_flag = true;
         }
@@ -181,8 +198,9 @@ LangNode_t *NewVariable(LangRoot *root, const char *variable, VariableArr *Varia
 
     if (!found_flag) {
         ResizeArray(VariableArr);
-        VariableArr->var_array[VariableArr->size].variable_name = variable;
+        VariableArr->var_array[VariableArr->size].variable_name = strdup(variable);
         pos = VariableArr->size;
+        VariableArr->var_array[VariableArr->size].func_made = NULL;
         VariableArr->size ++;
     }
     

@@ -5,6 +5,7 @@
 #include "DoGraph.h"
 #include "Front-End/TreeToAsm.h"
 #include "TreeToCode.h"
+#include "StackFunctions.h"
 
 int main(void) {
     LangRoot root = {};
@@ -12,7 +13,7 @@ int main(void) {
 
     VariableArr Variable_Array = {};
     DifErrors err = kSuccess;
-    CHECK_ERROR_RETURN(InitArrOfVariable(&Variable_Array, 4));
+    CHECK_ERROR_RETURN(InitArrOfVariable(&Variable_Array, 10));
 
     INIT_DUMP_INFO(dump_info);
     dump_info.tree = &root;
@@ -34,20 +35,23 @@ int main(void) {
     LangNode_t new_node = {};
     LangNode_t *new_node_adr = &new_node;
 
-    fprintf(stderr, "%zu\n\n", Variable_Array.size);
-    for (size_t i = 0; i < Variable_Array.size; i++) {
-        fprintf(stderr, "%s %d\n\n", Variable_Array.var_array[i].variable_name, Variable_Array.var_array[i].variable_value);
-    }
     FILE_OPEN_AND_CHECK(asm_file, "asm.asm", "w");
     int ram_base = 0;
-    PrintProgram(asm_file, root.root, &Variable_Array, &ram_base);
+    IntStack_Info params = {};
+    IntStackCtor(&params, 4, stderr);
+    PrintProgram(asm_file, root.root, &Variable_Array, &ram_base, &params);
+    IntStackDtor(&params, stderr);
     fclose(asm_file);
 
-    size_t pos = 0;
-    ParseNodeFromString(info.buf_ptr, &pos, root.root, &new_node_adr, &Variable_Array);
-    root1.root = new_node_adr;
-    dump_info.tree = &root1;
-    DoTreeInGraphviz(root1.root, &dump_info, &Variable_Array);
+    // size_t pos = 0;
+    // ParseNodeFromString(info.buf_ptr, &pos, root.root, &new_node_adr, &Variable_Array);
+    //     fprintf(stderr, "%zu\n\n", Variable_Array.size);
+    // for (size_t i = 0; i < Variable_Array.size; i++) {
+    //     fprintf(stderr, "%s %d\n\n", Variable_Array.var_array[i].variable_name, Variable_Array.var_array[i].variable_value);
+    // }
+    // root1.root = new_node_adr;
+    // dump_info.tree = &root1;
+    // DoTreeInGraphviz(root1.root, &dump_info, &Variable_Array);
 
     FILE_OPEN_AND_CHECK(code_out, "test.txt", "w");
     GenerateCodeFromAST(root1.root, code_out, &Variable_Array, 0);

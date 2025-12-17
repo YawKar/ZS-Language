@@ -49,6 +49,7 @@ void DoTreeInGraphviz(const LangNode_t *node, DumpInfo *Info, VariableArr *arr) 
     DoSnprintf(Info);
 }
 
+
 static void PrintDotNode(FILE *file, const LangNode_t *node, bool flag, VariableArr *arr) {
     assert(file);
     assert(node);
@@ -64,6 +65,8 @@ static void PrintDotNode(FILE *file, const LangNode_t *node, bool flag, Variable
             fprintf(file, "  Value: %lf  \nLeft: %p | Right: %p\" shape=egg color=black fillcolor=%s style=filled width=4 height=1.5 fixedsize=true];\n", 
                 node->value.number, (void *)node->left, (void *)node->right, color_number);
         } else {
+            //printf("[PrintDotNode] Node type: %d, value.pos: %d\n", node->type, node->value.pos);
+            
             fprintf(file, "  Value: %s  \nLeft: %p | Right: %p\" shape=octagon color=black fillcolor=%s style=filled width=4 height=1.5 fixedsize=true];\n", 
                 arr->var_array[(node->value).pos].variable_name, (void *)node->left, (void *)node->right, color_variable);
         }
@@ -179,6 +182,8 @@ static GraphOperation PrintExpressionType(const LangNode_t *node) {
             return {"E", "lightgoldenrod"};
         case (kOperationNE):
             return {"NE", "lightgoldenrod"};
+        case (kOperationHLT):
+        return {"HLT", "lightpink"};
 
         case (kOperationParOpen):
         case (kOperationParClose):

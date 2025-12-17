@@ -13,9 +13,10 @@ typedef char * Lang_t;
 
 struct VariableInfo {
     VariableModes type;
-    const char *variable_name;
+    char *variable_name;
     int variable_value;
     int pos_in_code;
+    char *func_made;
 };
 
 union Value {
@@ -77,6 +78,12 @@ struct GraphOperation {
 
 struct Stack_Info {
     LangNode_t **data;
+    ssize_t size;
+    ssize_t capacity;
+};
+
+struct IntStack_Info {
+    int *data;
     ssize_t size;
     ssize_t capacity;
 };

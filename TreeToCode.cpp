@@ -153,6 +153,7 @@ static DifErrors CheckType(Lang_t title, LangNode_t *node, VariableArr *arr) {
 
     arr->var_array[arr->size].variable_name = strdup(title);
     arr->var_array[arr->size].variable_value = 0;
+    arr->var_array[arr->size].func_made = NULL;
 
     node->value.pos = arr->size;
     arr->size++;

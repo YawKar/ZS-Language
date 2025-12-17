@@ -17,6 +17,7 @@
 #define SCANF "scanf"
 #define DECLARE "func"
 #define RETURN "return"
+#define GOODBYE "exit"
 
 static bool SkipComment(const char **string);
 static void SkipSpaces(const char **string);
@@ -84,7 +85,7 @@ size_t CheckAndReturn(LangRoot *root, const char **string, Stack_Info *tokens, V
         CHECK_SYMBOL_AND_PUSH('^', kOperationPow);
 
         CHECK_STROKE_AND_PUSH("sin", kOperationSin);
-        CHECK_STROKE_AND_PUSH("sqrt", kOperationSin);
+        CHECK_STROKE_AND_PUSH("sqrt", kOperationSQRT);
         CHECK_STROKE_AND_PUSH(IF, kOperationIf);
         CHECK_STROKE_AND_PUSH(ELSE, kOperationElse);
         CHECK_STROKE_AND_PUSH(WHILE, kOperationWhile);
@@ -92,6 +93,7 @@ size_t CheckAndReturn(LangRoot *root, const char **string, Stack_Info *tokens, V
         CHECK_STROKE_AND_PUSH(SCANF, kOperationRead);
         CHECK_STROKE_AND_PUSH(DECLARE, kOperationFunction);
         CHECK_STROKE_AND_PUSH(RETURN, kOperationReturn);
+        CHECK_STROKE_AND_PUSH(GOODBYE, kOperationHLT);
 
         if (ParseNumberToken(root, string, tokens, &cnt)) {
             continue;
