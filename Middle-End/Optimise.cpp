@@ -28,11 +28,9 @@ static bool IsOperation(LangNode_t *node);
 
 static double EvaluateExpression(LangNode_t *node, VariableArr *arr);
 
-LangNode_t *OptimiseTree(LangRoot *root, LangNode_t *node, FILE *out, const char *main_var, VariableArr *arr) {
+LangNode_t *OptimiseTree(LangRoot *root, LangNode_t *node, VariableArr *arr) {
     assert(root);
     assert(node);
-    assert(out);
-    assert(main_var);
     assert(arr);
 
     bool has_change = true;
