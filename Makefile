@@ -19,21 +19,25 @@ LDFLAGS = -lm -fsanitize=address,alignment,bool,bounds,enum,float-cast-overflow,
 
 OBJS_FRONT_NO_MAIN = $(filter-out build/front/main.o, $(OBJS_FRONT))
 
-TARGET_FRONT  = build/bin/front
-TARGET_MIDDLE = build/bin/middle  
-TARGET_BACK   = build/bin/back
-TARGET_ALL    = build/bin/solver
+TARGET_FRONT   = build/bin/front
+TARGET_MIDDLE  = build/bin/middle  
+TARGET_BACK    = build/bin/back
+TARGET_ALL     = build/bin/solver
+TARGET_REVERSE = build/bin/reverse
 
-SRCS_FRONT  = $(wildcard Front-End/*.cpp)
-SRCS_MIDDLE = $(wildcard Middle-End/*.cpp)
-SRCS_BACK   = $(wildcard Back-End/*.cpp)
-SRCS_COMMON = $(wildcard *.cpp)
+SRCS_FRONT   = $(wildcard Front-End/*.cpp)
+SRCS_MIDDLE  = $(wildcard Middle-End/*.cpp)
+SRCS_BACK    = $(wildcard Back-End/*.cpp)
+SRCS_REVERSE = $(wildcard Reverse-End/*.cpp) StackFunctions.cpp DoGraph.cpp
+SRCS_COMMON  = $(wildcard *.cpp)
 
-OBJS_FRONT  = $(patsubst Front-End/%.cpp, build/front/%.o,  $(SRCS_FRONT))
-OBJS_MIDDLE = $(patsubst Middle-End/%.cpp, build/middle/%.o, $(SRCS_MIDDLE))
-OBJS_BACK   = $(patsubst Back-End/%.cpp, build/back/%.o,     $(SRCS_BACK))
-OBJS_COMMON = $(patsubst %.cpp, build/common/%.o,            $(notdir $(SRCS_COMMON)))
+OBJS_FRONT   = $(patsubst Front-End/%.cpp,   build/front/%.o,   $(SRCS_FRONT))
+OBJS_MIDDLE  = $(patsubst Middle-End/%.cpp,  build/middle/%.o,  $(SRCS_MIDDLE))
+OBJS_BACK    = $(patsubst Back-End/%.cpp,    build/back/%.o,    $(SRCS_BACK))
+OBJS_REVERSE = $(patsubst Reverse-End/%.cpp, build/reverse/%.o, $(SRCS_REVERSE))
+OBJS_COMMON  = $(patsubst %.cpp,             build/common/%.o,  $(notdir $(SRCS_COMMON)))
 
+TREE_TO_CODE_OBJ = build/reverse/TreeToCode.o
 OBJS_ALL = $(OBJS_FRONT) $(OBJS_MIDDLE) $(OBJS_BACK) $(OBJS_COMMON)
 
 all: $(TARGET_ALL)
@@ -41,8 +45,9 @@ front: $(TARGET_FRONT)
 middle: $(TARGET_MIDDLE)
 back: $(TARGET_BACK)
 solver: $(TARGET_ALL)
+reverse: $(TARGET_REVERSE)
 
-$(TARGET_FRONT): $(OBJS_FRONT) $(OBJS_COMMON)
+$(TARGET_FRONT): $(OBJS_FRONT) $(OBJS_COMMON) $(TREE_TO_CODE_OBJ)
 	@mkdir -p build/bin
 	@$(CC) $^ -o $@ $(LDFLAGS)
 
@@ -51,6 +56,10 @@ $(TARGET_MIDDLE): $(OBJS_MIDDLE) $(OBJS_COMMON) $(OBJS_FRONT_NO_MAIN)
 	@$(CC) $^ -o $@ $(LDFLAGS)
 
 $(TARGET_BACK): $(OBJS_BACK) $(OBJS_COMMON) $(OBJS_FRONT) $(OBJS_MIDDLE)
+	@mkdir -p build/bin
+	@$(CC) $^ -o $@ $(LDFLAGS)
+
+$(TARGET_REVERSE): $(OBJS_REVERSE) $(OBJS_FRONT_NO_MAIN)
 	@mkdir -p build/bin
 	@$(CC) $^ -o $@ $(LDFLAGS)
 
@@ -64,10 +73,14 @@ build/front/%.o: Front-End/%.cpp
 
 build/middle/%.o: Middle-End/%.cpp
 	@mkdir -p build/middle
-	$(CC) $(CFLAGS) -c $< -o $@
+	@$(CC) $(CFLAGS) -c $< -o $@
 
 build/back/%.o: Back-End/%.cpp
 	@mkdir -p build/back
+	@$(CC) $(CFLAGS) -c $< -o $@
+
+build/reverse/%.o: Reverse-End/%.cpp
+	@mkdir -p build/reverse
 	@$(CC) $(CFLAGS) -c $< -o $@
 
 build/common/%.o: %.cpp
@@ -85,6 +98,9 @@ debug: $(TARGET_ALL)
 front-debug: $(TARGET_FRONT)
 	./$(TARGET_FRONT)
 
+reverse-debug: $(TARGET_REVERSE)
+	./$(TARGET_REVERSE)
+
 middle-debug: $(TARGET_MIDDLE)
 	./$(TARGET_MIDDLE)
 
@@ -97,5 +113,6 @@ list:
 	@echo "  make front          - фронтенд"
 	@echo "  make middle         - мидл + фронтенд"
 	@echo "  make back           - бэк + все предыдущие"
+	@echo "  make reverse        - reverse-end (Reverse-End/*.cpp + common)"
 
-.PHONY: all front middle back solver clean rebuild debug front-debug middle-debug back-debug list
+.PHONY: all front middle back solver reverse clean rebuild debug front-debug middle-debug back-debug reverse-debug list```
