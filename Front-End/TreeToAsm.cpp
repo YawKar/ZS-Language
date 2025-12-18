@@ -264,15 +264,14 @@ void PrintFunction(FILE *file, LangNode_t *func_node, VariableArr *arr, int *ram
     PRINT(file, "ADD");
     PRINT(file, "POPR RAX");
 
-    for (LangNode_t *arg = args; arg != NULL; arg = arg->right)
+    for (LangNode_t *arg = args; arg != NULL; arg = arg->left)
         if (arg && arg->type == kVariable)
             FindVarPosPopMN(file, arr, arg, *ram_base, param_count);
-
-    if (args && args->left)
-        for (LangNode_t *arg = args->left; arg != NULL; arg = arg->left)
-            if (arg && arg->type == kVariable)
-                FindVarPosPopMN(file, arr, arg, *ram_base, param_count);
-
+    if (args && args->right) {
+    for (LangNode_t *arg = args->right; arg != NULL; arg = arg->right)
+        if (arg && arg->type == kVariable)
+            FindVarPosPopMN(file, arr, arg, *ram_base, param_count);
+    }
     (*ram_base) += param_count;
     PrintStatement(file, func_node->right->right, arr, *ram_base, param_count, params);
 
