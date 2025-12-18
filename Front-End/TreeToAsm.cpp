@@ -81,8 +81,8 @@ void PushParamsToStack(FILE *file, LangNode_t *args_node, VariableArr *arr, int 
         return;
     }
 
-    if (args_node->left) PushParamsToStack(file, args_node->left, arr, ram_base, param_count);
-    if (args_node->right) PushParamsToStack(file, args_node->right, arr, ram_base, param_count);
+    if (args_node->left) PushParamsToStack(file, args_node->right, arr, ram_base, param_count);
+    if (args_node->right) PushParamsToStack(file, args_node->left, arr, ram_base, param_count);
     
 }
 
