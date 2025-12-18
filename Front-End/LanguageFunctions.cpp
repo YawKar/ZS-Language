@@ -262,10 +262,10 @@ static const char *ConvertEnumToOperation(LangNode_t *node, VariableArr *arr) {
     assert(arr);
 
     switch (node->value.operation) {
-        case kOperationAdd:       return "+";
-        case kOperationSub:       return "-";
-        case kOperationMul:       return "*";
-        case kOperationDiv:       return "/";
+        case kOperationAdd:       return ADD;
+        case kOperationSub:       return SUB;
+        case kOperationMul:       return MUL;
+        case kOperationDiv:       return DIV;
         case kOperationPow:       return "^";
         case kOperationSin:       return "sin";
         case kOperationSQRT:      return "sqrt";
@@ -277,25 +277,27 @@ static const char *ConvertEnumToOperation(LangNode_t *node, VariableArr *arr) {
         case kOperationCosh:      return "ch";
         case kOperationTgh:       return "th";
         case kOperationIs:        return "=";
-        case kOperationIf:        return "if";
-        case kOperationElse:      return "else";
-        case kOperationWhile:     return "while";
+        case kOperationIf:        return IF;
+        case kOperationElse:      return ELSE;
+        case kOperationWhile:     return WHILE;
         case kOperationThen:      return ";";
         case kOperationParOpen:   return "(";
         case kOperationParClose:  return ")";
         case kOperationBraceOpen: return "{";
         case kOperationBraceClose:return "}";
-        case kOperationWrite:     return "print";
-        case kOperationRead:      return "scanf";
+        case kOperationWrite:     return PRINT;
+        case kOperationRead:      return SCANF;
         case kOperationComma:     return ",";
         case kOperationCall:      return "call";
-        case kOperationFunction:  return "func";
-        case kOperationReturn:    return "return";
-        case kOperationB:         return "<";
-        case kOperationBE:        return "<=";
-        case kOperationA:         return ">";
-        case kOperationAE:        return ">=";
-        case kOperationE:         return "==";
+        case kOperationFunction:  return DECLARE;
+        case kOperationReturn:    return RETURN;
+        case kOperationHLT:       return GOODBYE;
+        case kOperationWriteChar: return PRINTC;
+        case kOperationB:         return B;
+        case kOperationBE:        return BEQ;
+        case kOperationA:         return A;
+        case kOperationAE:        return AE;
+        case kOperationE:         return EQUAL;
         case kOperationNE:        return "!=";
 
         case kOperationNone:      return "none";

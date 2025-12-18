@@ -96,7 +96,8 @@ DifErrors ReadInfix(Language *lang_info, DumpInfo *dump_info, const char *filena
 
     size_t tokens_pos = 0;
     lang_info->tokens_pos = &tokens_pos;
-
+    
+    printf("AA");
     lang_info->root->root = GetGoal(lang_info);
     if (!lang_info->root->root) {
         return kFailure;
@@ -300,8 +301,8 @@ static LangNode_t *GetPrintf(Language *lang_info) { //
     assert(lang_info);
 
     LangNode_t *print_f = GetStackElem(lang_info->tokens, *(lang_info->tokens_pos));
-    if (IsThatOperation(print_f, kOperationWrite)) {
-        (*lang_info->tokens_pos)++; 
+    if (IsThatOperation(print_f, kOperationWrite) || IsThatOperation(print_f, kOperationWriteChar)) {
+        (*lang_info->tokens_pos)++;
 
         size_t save_pos = *(lang_info->tokens_pos);
         LangNode_t *par = NULL;
@@ -708,45 +709,59 @@ static LangNode_t *GetElse(Language *lang_info, LangNode_t *if_node, LangNode_t 
 }
 
 static LangNode_t *GetWhile(Language *lang_info, LangNode_t *func) {
-    assert(lang_info);
-    assert(func);
-
     size_t save_pos = *(lang_info->tokens_pos);
+    
     LangNode_t *tok = NULL;
-
     CHECK_EXPECTED_TOKEN(tok, IsThatOperation(tok, kOperationWhile), );
     CHECK_EXPECTED_TOKEN(tok, IsThatOperation(tok, kOperationParOpen), );
 
-    LangNode_t *condition_node = GetExpression(lang_info);
-    if (!condition_node) {
-        *(lang_info->tokens_pos)= save_pos;
-        return NULL;
-    }
-
-    CHECK_EXPECTED_TOKEN(tok, IsThatOperation(tok, kOperationParClose),
-        fprintf(stderr, "%s", "SYNTAX_ERROR_WHILE: expected ')'\n"));
-    CHECK_EXPECTED_TOKEN(tok, IsThatOperation(tok, kOperationBraceOpen),
-        fprintf(stderr, "%s", "SYNTAX_ERROR_WHILE: expected '{'\n"));
-
-    LangNode_t *body_node = ParseStatementSequence(lang_info, func);
-    if (!body_node) {
+    // Полное условие с операторами сравнения
+    LangNode_t *cond_left = GetExpression(lang_info);
+    LangNode_t *cond_sign = GetStackElem(lang_info->tokens, *(lang_info->tokens_pos));
+    
+    if (IsThatOperation(cond_sign, kOperationB) || IsThatOperation(cond_sign, kOperationBE) || 
+        IsThatOperation(cond_sign, kOperationA) || IsThatOperation(cond_sign, kOperationAE) ||
+        IsThatOperation(cond_sign, kOperationE) || IsThatOperation(cond_sign, kOperationNE)) {
+        (*lang_info->tokens_pos)++;
+        LangNode_t *cond_right = GetExpression(lang_info);
+        cond_sign->left = cond_left;
+        cond_sign->right = cond_right;
+        cond_left->parent = cond_sign;
+        cond_right->parent = cond_sign;
+    } else {
         *(lang_info->tokens_pos) = save_pos;
         return NULL;
     }
 
-    CHECK_EXPECTED_TOKEN(tok, IsThatOperation(tok, kOperationBraceClose),
-        fprintf(stderr, "%s", "SYNTAX_ERROR_WHILE: expected '}'\n"));
+    CHECK_EXPECTED_TOKEN(tok, IsThatOperation(tok, kOperationParClose), );
+    CHECK_EXPECTED_TOKEN(tok, IsThatOperation(tok, kOperationBraceOpen), );
 
-    LangNode_t *while_node = GetStackElem(lang_info->tokens, *(lang_info->tokens_pos) - 1);
-    while_node->type = kOperation;
-    while_node->value.operation = kOperationWhile;
-    while_node->left  = condition_node;
-    while_node->right = body_node;
-    condition_node->parent = while_node;
-    body_node->parent = while_node;
+    // Тело цикла — последовательность операторов
+    LangNode_t *body = NULL, *last = NULL;
+    while (true) {
+        size_t body_pos = *(lang_info->tokens_pos);
+        LangNode_t *stmt = GetOp(lang_info, func);
+        if (!stmt) break;
+        
+        if (!body) {
+            body = stmt;
+        } else {
+            body = NEWOP(kOperationThen, last, stmt);
+        }
+        last = body;
+    }
 
-    return while_node;
+    CHECK_EXPECTED_TOKEN(tok, IsThatOperation(tok, kOperationBraceClose), );
+
+    LangNode_t *while_tok = GetStackElem(lang_info->tokens, save_pos);
+    while_tok->type = kOperation;
+    while_tok->value.operation = kOperationWhile;
+    while_tok->left = cond_sign;
+    while_tok->right = body;
+    
+    return while_tok;
 }
+
 
 LangNode_t *GetPower(Language *lang_info) {
     assert(lang_info);

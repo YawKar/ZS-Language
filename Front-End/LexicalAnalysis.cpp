@@ -10,15 +10,6 @@
 #include "StackFunctions.h"
 #include "Front-End/LanguageFunctions.h"
 
-#define IF "if"
-#define ELSE "else"
-#define WHILE "while"
-#define PRINT "print"
-#define SCANF "scanf"
-#define DECLARE "func"
-#define RETURN "return"
-#define GOODBYE "exit"
-
 static bool SkipComment(const char **string);
 static void SkipSpaces(const char **string);
 static void SkipEmptyLines(const char **string);
@@ -64,24 +55,25 @@ size_t CheckAndReturn(LangRoot *root, const char **string, Stack_Info *tokens, V
             continue;
         }
 
+        CHECK_STROKE_AND_PUSH(BRACEOP, kOperationBraceOpen);
+        CHECK_STROKE_AND_PUSH(BRACECL, kOperationBraceClose);
         CHECK_SYMBOL_AND_PUSH('(', kOperationParOpen);
         CHECK_SYMBOL_AND_PUSH(')', kOperationParClose);
-        CHECK_SYMBOL_AND_PUSH('{', kOperationBraceOpen);
-        CHECK_SYMBOL_AND_PUSH('}', kOperationBraceClose);
-
-        CHECK_STROKE_AND_PUSH("<=", kOperationBE);
-        CHECK_STROKE_AND_PUSH(">=", kOperationAE);
-        CHECK_STROKE_AND_PUSH("==", kOperationE);
+        
+        CHECK_STROKE_AND_PUSH(BEQ, kOperationBE);
+        CHECK_STROKE_AND_PUSH(AE, kOperationAE);
+        CHECK_STROKE_AND_PUSH(EQUAL, kOperationE);
         CHECK_STROKE_AND_PUSH("!=", kOperationNE);
 
-        CHECK_SYMBOL_AND_PUSH('<', kOperationB);
-        CHECK_SYMBOL_AND_PUSH('>', kOperationA);
-        CHECK_SYMBOL_AND_PUSH('=', kOperationIs);
-        CHECK_SYMBOL_AND_PUSH(';', kOperationThen);
+        CHECK_STROKE_AND_PUSH(B, kOperationB);
+        CHECK_STROKE_AND_PUSH(A, kOperationA);
+        CHECK_STROKE_AND_PUSH(IS, kOperationIs);
+        CHECK_STROKE_AND_PUSH(THEN, kOperationThen);
         CHECK_SYMBOL_AND_PUSH(',', kOperationComma);
-        CHECK_SYMBOL_AND_PUSH('+', kOperationAdd);
-        CHECK_SYMBOL_AND_PUSH('*', kOperationMul);
-        CHECK_SYMBOL_AND_PUSH('/', kOperationDiv);
+        CHECK_STROKE_AND_PUSH(ADD, kOperationAdd);
+        CHECK_STROKE_AND_PUSH(MUL, kOperationMul);
+        CHECK_STROKE_AND_PUSH(DIV, kOperationDiv);
+        CHECK_STROKE_AND_PUSH(SUB, kOperationSub);
         CHECK_SYMBOL_AND_PUSH('^', kOperationPow);
 
         CHECK_STROKE_AND_PUSH("sin", kOperationSin);
@@ -89,6 +81,7 @@ size_t CheckAndReturn(LangRoot *root, const char **string, Stack_Info *tokens, V
         CHECK_STROKE_AND_PUSH(IF, kOperationIf);
         CHECK_STROKE_AND_PUSH(ELSE, kOperationElse);
         CHECK_STROKE_AND_PUSH(WHILE, kOperationWhile);
+        CHECK_STROKE_AND_PUSH(PRINTC, kOperationWriteChar);
         CHECK_STROKE_AND_PUSH(PRINT, kOperationWrite);
         CHECK_STROKE_AND_PUSH(SCANF, kOperationRead);
         CHECK_STROKE_AND_PUSH(DECLARE, kOperationFunction);
@@ -105,7 +98,7 @@ size_t CheckAndReturn(LangRoot *root, const char **string, Stack_Info *tokens, V
             continue;
         }
 
-        fprintf(stderr, "AAAAAA, SYNTAX_ERROR.");
+        fprintf(stderr, "AAAAAA, SYNTAX_ERROR.\n%s", *string);
         return 0;
     }
 
