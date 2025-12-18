@@ -201,6 +201,7 @@ void GenerateCodeFromAST(LangNode_t *node, FILE *out, VariableArr *arr, int inde
                 fprintf(out, "%s ", RETURN);
                 if (node->left)
                     GenExpr(node->left, out, arr);
+
                 fprintf(out, "%s\n", THEN);
                 return;
 
@@ -398,9 +399,12 @@ static void GenExpr(LangNode_t *node, FILE *out, VariableArr *arr) {
                 fprintf(out, "(");
                 GenExpr(node->left, out, arr);
                 fprintf(out, ")");
+                
             } else {
                 GenExpr(node->left, out, arr);
             }
+            fprintf(out, " %s ", op);
+            GenExpr(node->right, out, arr);
             return;
         }
 
@@ -436,6 +440,7 @@ static void GenExpr(LangNode_t *node, FILE *out, VariableArr *arr) {
 
         case kOperationCall:
             GenExpr(node->left, out, arr);
+            GenExpr(node->left, stdout, arr);
             fprintf(out, "(");
             if (node->right)
                 GenExpr(node->right, out, arr);
