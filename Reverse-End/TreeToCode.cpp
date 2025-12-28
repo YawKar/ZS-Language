@@ -161,7 +161,7 @@ static DifErrors CheckType(Lang_t title, LangNode_t *node, VariableArr *arr) {
             return kSuccess;
         }
     }
-    //printf("%s\n\n", title);
+    // printf("%s\n\n", title);
 
     bool is_num = true;
     for (size_t k = 0; title[k]; k++) {
@@ -189,6 +189,7 @@ static DifErrors CheckType(Lang_t title, LangNode_t *node, VariableArr *arr) {
     if (arr->size >= arr->capacity)
         return kNoMemory;
 
+    ResizeArray(arr);
     arr->var_array[arr->size].variable_name = strdup(title);
     arr->var_array[arr->size].variable_value = 0;
     arr->var_array[arr->size].func_made = NULL;
@@ -243,9 +244,12 @@ static void GenExpr(LangNode_t *node, FILE *out, VariableArr *arr);
 static void GenThenChain(LangNode_t *node, FILE *out, VariableArr *arr, int indent);
 static void GenIf(LangNode_t *node, FILE *out, VariableArr *arr, int indent);
 static void GenWhile(LangNode_t *node, FILE *out, VariableArr *arr, int indent);
-static void GenFunction(LangNode_t *node, FILE *out, VariableArr *arr, int indent);
+static void GenFunctionDeclare(LangNode_t *node, FILE *out, VariableArr *arr, int indent);
+static void GenFunctionCall(LangNode_t *node, FILE *out, VariableArr *arr, int indent);
 
 static void PrintIndent(FILE *out, int indent) {
+    assert(out);
+
     for (int i = 0; i < indent; ++i)
         fputc('\t', out);
 }
@@ -267,7 +271,10 @@ void GenerateCodeFromAST(LangNode_t *node, FILE *out, VariableArr *arr, int inde
                 return;
 
             case kOperationFunction:
-                GenFunction(node, out, arr, indent);
+                GenFunctionDeclare(node, out, arr, indent);
+                return;
+            case kOperationCall:
+                GenFunctionCall(node, out, arr, indent);
                 return;
 
             case kOperationThen:
@@ -297,6 +304,11 @@ void GenerateCodeFromAST(LangNode_t *node, FILE *out, VariableArr *arr, int inde
                 GenExpr(node->left, out, arr);
                 fprintf(out, ")");
                 fprintf(out, "%s\n", THEN);
+                return;
+
+            case kOperationHLT:
+                PrintIndent(out, indent);
+                fprintf(out, "exit%s\n", THEN);
                 return;
 
             default:
@@ -380,23 +392,26 @@ static void GenWhile(LangNode_t *node, FILE *out, VariableArr *arr, int indent) 
     GenExpr(node->left, out, arr);
     fprintf(out, ") %s\n", BRACEOP);
 
-    if (node->right)
+    if (node->right) {
         GenThenChain(node->right, out, arr, indent + 1);
+    }
 
     PrintIndent(out, indent);
     fprintf(out, "%s\n", BRACECL);
 }
 
-static void GenFunction(LangNode_t *node, FILE *out, VariableArr *arr, int indent) {
+static void GenFunctionDeclare(LangNode_t *node, FILE *out, VariableArr *arr, int indent) {
+    assert(node);
+    assert(out);
+    assert(arr);
+
     LangNode_t *name = node->left;
     LangNode_t *pair = node->right;
 
     LangNode_t *args = NULL;
     LangNode_t *body = NULL;
-    fprintf(stderr, "A\n");
 
-    if (pair &&
-        pair->type == kOperation &&
+    if (pair && pair->type == kOperation &&
         pair->value.operation == kOperationThen) {
         args = pair->left;
         body = pair->right;
@@ -405,20 +420,45 @@ static void GenFunction(LangNode_t *node, FILE *out, VariableArr *arr, int inden
     }
 
     PrintIndent(out, indent);
-    fprintf(out, "%s ", DECLARE);
-    if (name)
+    fprintf(out, "\n%s ", DECLARE);
+
+    if (name) {
         GenExpr(name, out, arr);
+    }
 
     fprintf(out, "(");
-    if (args)
+    if (args) {
         GenExpr(args, out, arr);
+    }
     fprintf(out, ") %s\n", BRACEOP);
 
-    if (body)
+    if (body) {
         GenThenChain(body, out, arr, indent + 1);
+    }
 
     PrintIndent(out, indent);
     fprintf(out, "%s\n", BRACECL);
+}
+
+static void GenFunctionCall(LangNode_t *node, FILE *out, VariableArr *arr, int indent) {
+    assert(node);
+    assert(out);
+    assert(arr);
+
+    LangNode_t *name = node->left;
+    LangNode_t *args = node->right;
+
+    PrintIndent(out, indent);
+
+    if (name) {
+        GenExpr(name, out, arr);
+    }
+
+    fprintf(out, "(");
+    if (args) {
+        GenExpr(args, out, arr);
+    }
+    fprintf(out, ")%s\n", THEN);
 }
 
 static int GetOpPrecedence(OperationTypes op) {
@@ -510,22 +550,34 @@ static void GenExpr(LangNode_t *node, FILE *out, VariableArr *arr) {
             return;
         }
 
-
         case kOperationIs:
             GenExpr(node->left, out, arr);
             fprintf(out, " %s ", IS);
             GenExpr(node->right, out, arr);
             return;
 
-
-        case kOperationCall:
+        case kOperationCall: //
             GenExpr(node->left, out, arr);
-            GenExpr(node->left, stdout, arr);
             fprintf(out, "(");
             if (node->right)
                 GenExpr(node->right, out, arr);
             fprintf(out, ")");
             return;
+
+        case kOperationComma:
+            GenExpr(node->left, out, arr);
+            fprintf(out, ", ");
+            GenExpr(node->right, out, arr);
+            return;
+
+
+        // case kOperationCall:
+        //     GenExpr(node->left, out, arr);
+        //     fprintf(out, "(");
+        //     if (node->right)
+        //         GenExpr(node->right, out, arr);
+        //     fprintf(out, ")");
+        //     return;
 
         case kOperationSin:
         case kOperationCos:
@@ -553,6 +605,7 @@ static void GenExpr(LangNode_t *node, FILE *out, VariableArr *arr) {
             return;
         }
 
+        
         default:
             fprintf(out, "UNSUPPORTED_OP");
             return;
