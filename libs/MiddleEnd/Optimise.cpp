@@ -1,34 +1,51 @@
 #include "MiddleEnd/Optimise.h"
 
-#include <stdio.h>
 #include <assert.h>
 #include <math.h>
+#include <stdio.h>
+
+#include <cstdlib>
 
 #include "Common/Enums.h"
 #include "Common/Structs.h"
 #include "FrontEnd/LanguageFunctions.h"
-//#include "Differentiate.h"
+// #include "Differentiate.h"
 
-#include "Common/DoGraph.h"
+static LangNode_t* AddOptimise(
+    LangRoot* root, LangNode_t* node, bool* has_change
+);
+static LangNode_t* SubOptimise(
+    LangRoot* root, LangNode_t* node, bool* has_change
+);
+static LangNode_t* MulOptimise(
+    LangRoot* root, LangNode_t* node, bool* has_change
+);
+static LangNode_t* DivOptimise(
+    LangRoot* root, LangNode_t* node, bool* has_change
+);
+static LangNode_t* PowOptimise(
+    LangRoot* root, LangNode_t* node, bool* has_change
+);
 
-static LangNode_t *AddOptimise(LangRoot *root, LangNode_t *node, bool *has_change);
-static LangNode_t *SubOptimise(LangRoot *root, LangNode_t *node, bool *has_change);
-static LangNode_t *MulOptimise(LangRoot *root, LangNode_t *node, bool *has_change);
-static LangNode_t *DivOptimise(LangRoot *root, LangNode_t *node, bool *has_change);
-static LangNode_t *PowOptimise(LangRoot *root, LangNode_t *node, bool *has_change);
+static LangNode_t* CheckNodeAndConstOptimise(
+    LangRoot* root, LangNode_t* node, bool* has_change, VariableArr* arr
+);
+static LangNode_t* GetSubTree(
+    LangRoot* root,
+    LangNode_t* node,
+    LangNode_t* delete_node,
+    LangNode_t* to_main
+);
 
-static LangNode_t *CheckNodeAndConstOptimise(LangRoot *root, LangNode_t *node, bool *has_change, VariableArr *arr);
-static LangNode_t *GetSubTree(LangRoot *root, LangNode_t *node, LangNode_t *delete_node, LangNode_t *to_main);
-
-static bool IsThisNumber(LangNode_t *node, double number);
+static bool IsThisNumber(LangNode_t* node, double number);
 // static bool IsZero(LangNode_t *node);
 // static bool IsOne(LangNode_t *node);
-static bool IsNumber(LangNode_t *node);
-static bool IsOperation(LangNode_t *node);
+static bool IsNumber(LangNode_t* node);
+static bool IsOperation(LangNode_t* node);
 
-static double EvaluateExpression(LangNode_t *node, VariableArr *arr);
+static double EvaluateExpression(LangNode_t* node, VariableArr* arr);
 
-LangNode_t *OptimiseTree(LangRoot *root, LangNode_t *node, VariableArr *arr) {
+LangNode_t* OptimiseTree(LangRoot* root, LangNode_t* node, VariableArr* arr) {
     assert(root);
     assert(node);
     assert(arr);
@@ -37,7 +54,7 @@ LangNode_t *OptimiseTree(LangRoot *root, LangNode_t *node, VariableArr *arr) {
 
     while (has_change) {
         has_change = false;
-        node = ConstOptimise(root, node, &has_change, arr); 
+        node = ConstOptimise(root, node, &has_change, arr);
         if (has_change) {
             node->parent = NULL;
         }
@@ -51,7 +68,9 @@ LangNode_t *OptimiseTree(LangRoot *root, LangNode_t *node, VariableArr *arr) {
     return node;
 }
 
-LangNode_t *ConstOptimise(LangRoot *root, LangNode_t *node, bool *has_change, VariableArr *arr) {
+LangNode_t* ConstOptimise(
+    LangRoot* root, LangNode_t* node, bool* has_change, VariableArr* arr
+) {
     assert(node);
     assert(has_change);
     assert(arr);
@@ -76,7 +95,9 @@ LangNode_t *ConstOptimise(LangRoot *root, LangNode_t *node, bool *has_change, Va
     return node;
 }
 
-LangNode_t *EraseNeutralElements(LangRoot *root, LangNode_t *node, bool *has_change) {
+LangNode_t* EraseNeutralElements(
+    LangRoot* root, LangNode_t* node, bool* has_change
+) {
     assert(root);
     assert(node);
     assert(has_change);
@@ -100,7 +121,7 @@ LangNode_t *EraseNeutralElements(LangRoot *root, LangNode_t *node, bool *has_cha
     }
     if (operation == kOperationSub) {
         return SubOptimise(root, node, has_change);
-    } 
+    }
     if (operation == kOperationMul) {
         return MulOptimise(root, node, has_change);
     }
@@ -114,10 +135,13 @@ LangNode_t *EraseNeutralElements(LangRoot *root, LangNode_t *node, bool *has_cha
     return node;
 }
 
-#define NEWN(num) NewNode(root, kNumber, (Value){ .number = (num)}, NULL, NULL)
-#define MUL_(left, right) NewNode(root, kOperation, (Value){ .operation = kOperationMul}, left, right)
+#define NEWN(num) NewNode(root, kNumber, (Value){.number = (num)}, NULL, NULL)
+#define MUL_(left, right) \
+    NewNode(root, kOperation, (Value){.operation = kOperationMul}, left, right)
 
-static LangNode_t *AddOptimise(LangRoot *root, LangNode_t *node, bool *has_change) {
+static LangNode_t* AddOptimise(
+    LangRoot* root, LangNode_t* node, bool* has_change
+) {
     assert(root);
     assert(node);
     assert(has_change);
@@ -135,7 +159,9 @@ static LangNode_t *AddOptimise(LangRoot *root, LangNode_t *node, bool *has_chang
     return node;
 }
 
-static LangNode_t *SubOptimise(LangRoot *root, LangNode_t *node, bool *has_change) {
+static LangNode_t* SubOptimise(
+    LangRoot* root, LangNode_t* node, bool* has_change
+) {
     assert(root);
     assert(node);
     assert(has_change);
@@ -147,7 +173,7 @@ static LangNode_t *SubOptimise(LangRoot *root, LangNode_t *node, bool *has_chang
 
     if (IsThisNumber(node->left, 0)) {
         *has_change = true;
-        LangNode_t *right = GetSubTree(root, node, node->left, node->right);
+        LangNode_t* right = GetSubTree(root, node, node->left, node->right);
 
         // LangNode_t *negative_node = NEWN(-1.0);
         // LangNode_t *mul_node = MUL_(negative_node, right);
@@ -160,7 +186,9 @@ static LangNode_t *SubOptimise(LangRoot *root, LangNode_t *node, bool *has_chang
     return node;
 }
 
-static LangNode_t *MulOptimise(LangRoot *root, LangNode_t *node, bool *has_change) {
+static LangNode_t* MulOptimise(
+    LangRoot* root, LangNode_t* node, bool* has_change
+) {
     assert(root);
     assert(node);
     assert(has_change);
@@ -185,7 +213,9 @@ static LangNode_t *MulOptimise(LangRoot *root, LangNode_t *node, bool *has_chang
     return node;
 }
 
-static LangNode_t *DivOptimise(LangRoot *root, LangNode_t *node, bool *has_change) {
+static LangNode_t* DivOptimise(
+    LangRoot* root, LangNode_t* node, bool* has_change
+) {
     assert(root);
     assert(node);
     assert(has_change);
@@ -205,7 +235,9 @@ static LangNode_t *DivOptimise(LangRoot *root, LangNode_t *node, bool *has_chang
     return node;
 }
 
-static LangNode_t *PowOptimise(LangRoot *root, LangNode_t *node, bool *has_change) {
+static LangNode_t* PowOptimise(
+    LangRoot* root, LangNode_t* node, bool* has_change
+) {
     assert(root);
     assert(node);
     assert(has_change);
@@ -226,7 +258,7 @@ static LangNode_t *PowOptimise(LangRoot *root, LangNode_t *node, bool *has_chang
 
     if (IsThisNumber(node->right, 1)) {
         *has_change = true;
-        
+
         return GetSubTree(root, node, node->right, node->left);
     }
 
@@ -235,13 +267,18 @@ static LangNode_t *PowOptimise(LangRoot *root, LangNode_t *node, bool *has_chang
 #undef NEWN
 #undef MUL_
 
-static LangNode_t *GetSubTree(LangRoot *root, LangNode_t *node, LangNode_t *delete_node, LangNode_t *to_main) {
+static LangNode_t* GetSubTree(
+    LangRoot* root,
+    LangNode_t* node,
+    LangNode_t* delete_node,
+    LangNode_t* to_main
+) {
     assert(root);
     assert(node);
     assert(delete_node);
     assert(to_main);
-    
-    LangNode_t *res = to_main;
+
+    LangNode_t* res = to_main;
 
     if (res) {
         res->parent = node->parent;
@@ -258,7 +295,7 @@ static LangNode_t *GetSubTree(LangRoot *root, LangNode_t *node, LangNode_t *dele
     return res;
 }
 
-static bool IsThisNumber(LangNode_t *node, double number) {
+static bool IsThisNumber(LangNode_t* node, double number) {
     if (!node) {
         return false;
     }
@@ -274,7 +311,7 @@ static bool IsThisNumber(LangNode_t *node, double number) {
 //     return (node->type == kNumber && fabs(node->value.number - 1) < eps);
 // }
 
-static bool IsNumber(LangNode_t *node) {
+static bool IsNumber(LangNode_t* node) {
     if (!node) {
         return false;
     }
@@ -282,7 +319,7 @@ static bool IsNumber(LangNode_t *node) {
     return (node->type == kNumber);
 }
 
-static bool IsOperation(LangNode_t *node) {
+static bool IsOperation(LangNode_t* node) {
     if (!node) {
         return false;
     }
@@ -290,8 +327,9 @@ static bool IsOperation(LangNode_t *node) {
     return (node->type == kOperation);
 }
 
-static LangNode_t *CheckNodeAndConstOptimise(LangRoot *root, LangNode_t *node, 
-    bool *has_change, VariableArr *arr) {
+static LangNode_t* CheckNodeAndConstOptimise(
+    LangRoot* root, LangNode_t* node, bool* has_change, VariableArr* arr
+) {
     assert(has_change);
     assert(arr);
 
@@ -302,7 +340,7 @@ static LangNode_t *CheckNodeAndConstOptimise(LangRoot *root, LangNode_t *node,
     return node;
 }
 
-static double EvaluateExpression(LangNode_t *node, VariableArr *arr) {
+static double EvaluateExpression(LangNode_t* node, VariableArr* arr) {
     assert(node);
     assert(arr);
 
@@ -314,46 +352,48 @@ static double EvaluateExpression(LangNode_t *node, VariableArr *arr) {
     }
 
     switch (node->value.operation) {
-    case (kOperationAdd):
-        return EvaluateExpression(node->left, arr) +
-            EvaluateExpression(node->right, arr);
-    case (kOperationSub):
-        return EvaluateExpression(node->left, arr) -
-            EvaluateExpression(node->right, arr);
-    case (kOperationMul):
-        return EvaluateExpression(node->left, arr) *
-            EvaluateExpression(node->right, arr);
-    case (kOperationDiv): {
-        double right = EvaluateExpression(node->right, arr);
-        if (fabs(right) < eps) {
-            fprintf(stderr, "Division by zero.\n");
-            return 0;
+        case (kOperationAdd):
+            return EvaluateExpression(node->left, arr) +
+                   EvaluateExpression(node->right, arr);
+        case (kOperationSub):
+            return EvaluateExpression(node->left, arr) -
+                   EvaluateExpression(node->right, arr);
+        case (kOperationMul):
+            return EvaluateExpression(node->left, arr) *
+                   EvaluateExpression(node->right, arr);
+        case (kOperationDiv): {
+            double right = EvaluateExpression(node->right, arr);
+            if (fabs(right) < eps) {
+                fprintf(stderr, "Division by zero.\n");
+                return 0;
+            }
+            return EvaluateExpression(node->left, arr) / right;
         }
-        return EvaluateExpression(node->left, arr) / right;
-    }
-    case (kOperationPow):
-        return pow(EvaluateExpression(node->left, arr),
-                EvaluateExpression(node->right, arr));
-    case (kOperationSin):
-        return sin(EvaluateExpression(node->right, arr));
-    case (kOperationCos):
-        return cos(EvaluateExpression(node->right, arr));
-    case (kOperationTg):
-        return tan(EvaluateExpression(node->right, arr));
-    case (kOperationLn):
-        return log(EvaluateExpression(node->right, arr));
-    case (kOperationArctg):
-        return atan(EvaluateExpression(node->right, arr));
-    case (kOperationSinh):
-        return sinh(EvaluateExpression(node->right, arr));    
-    case (kOperationCosh):
-        return cosh(EvaluateExpression(node->right, arr));
-    case (kOperationTgh):
-        return tanh(EvaluateExpression(node->right, arr));
+        case (kOperationPow):
+            return pow(
+                EvaluateExpression(node->left, arr),
+                EvaluateExpression(node->right, arr)
+            );
+        case (kOperationSin):
+            return sin(EvaluateExpression(node->right, arr));
+        case (kOperationCos):
+            return cos(EvaluateExpression(node->right, arr));
+        case (kOperationTg):
+            return tan(EvaluateExpression(node->right, arr));
+        case (kOperationLn):
+            return log(EvaluateExpression(node->right, arr));
+        case (kOperationArctg):
+            return atan(EvaluateExpression(node->right, arr));
+        case (kOperationSinh):
+            return sinh(EvaluateExpression(node->right, arr));
+        case (kOperationCosh):
+            return cosh(EvaluateExpression(node->right, arr));
+        case (kOperationTgh):
+            return tanh(EvaluateExpression(node->right, arr));
 
-    case (kOperationNone):
-    default:
-        fprintf(stderr, "Unknown operation: %d.\n", node->value.operation);
-        return 0;
+        case (kOperationNone):
+        default:
+            fprintf(stderr, "Unknown operation: %d.\n", node->value.operation);
+            return 0;
     }
 }

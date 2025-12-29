@@ -1,0 +1,11 @@
+UseColor: true
+WarningsAsErrors: '*'
+Checks: >
+  -*, # conservatively disabling plenty of useful checks
+
+  bugprone-*,
+  clang-analyzer-*,
+  misc-include-cleaner,
+  misc-header-include-cycle,
+  misc-misplaced-const,
+  misc-static-assert,

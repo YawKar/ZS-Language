@@ -1,118 +1,68 @@
-CC = g++
-CFLAGS = -ggdb3 -g -std=c++17 -O0 \
-    -Iinclude -Iinclude/* -I. -Wall -Wextra -Weffc++ -Wc++14-compat -Wmissing-declarations \
-    -Wcast-align -Wcast-qual -Wchar-subscripts -Wconversion \
-    -Wctor-dtor-privacy -Wempty-body -Wfloat-equal \
-    -Wformat-nonliteral -Wformat-security -Wformat=2 \
-    -Winline -Wnon-virtual-dtor -Woverloaded-virtual \
-    -Wpacked -Wpointer-arith -Winit-self \
-    -Wshadow -Wsign-conversion -Wsign-promo -Wstrict-overflow=2 \
-    -Wsuggest-override -Wswitch-default -Wswitch-enum -Wundef \
-    -Wunreachable-code -Wunused -Wvariadic-macros \
-    -Wno-missing-field-initializers -Wno-narrowing -Wno-old-style-cast -Wno-varargs \
-    -Wstack-protector -fcheck-new -fsized-deallocation -fstack-protector \
-    -fstrict-overflow -fno-omit-frame-pointer -Wlarger-than=8192 \
-    -fPIE -Werror=vla \
-    -fsanitize=address,alignment,bool,bounds,enum,float-cast-overflow,float-divide-by-zero,integer-divide-by-zero,nonnull-attribute,null,return,returns-nonnull-attribute,shift,signed-integer-overflow,undefined,unreachable,vla-bound,vptr
+BUILD_DIR = build
+TARGETS   = front_end_exe middle_end_exe reverse_end_exe
 
-LDFLAGS = -lm -fsanitize=address,alignment,bool,bounds,enum,float-cast-overflow,float-divide-by-zero,integer-divide-by-zero,nonnull-attribute,null,return,returns-nonnull-attribute,shift,signed-integer-overflow,undefined,unreachable,vla-bound,vptr
+front:   $(BUILD_DIR)/bins/FrontEnd/front_end_exe
+middle:  $(BUILD_DIR)/bins/MiddleEnd/middle_end_exe
+reverse: $(BUILD_DIR)/bins/ReverseEnd/reverse_end_exe
+all: 		 front middle reverse
 
-OBJS_FRONT_NO_MAIN = $(filter-out build/front/main.o, $(OBJS_FRONT))
+# MACRO: $1 = target name (e.g. front), $2 = path to exe
+define GEN_RULES
+$1-debug: $2
+	./$2
 
-TARGET_FRONT   = build/bin/front
-TARGET_MIDDLE  = build/bin/middle  
-TARGET_BACK    = build/bin/back
-TARGET_ALL     = build/bin/solver
-TARGET_REVERSE = build/bin/reverse
+# This allows 'make' to track the file. 
+# We depend on build/build.ninja so we don't 'meson setup' unnecessarily.
+$2: $(BUILD_DIR)/build.ninja
+	@meson compile -C $(BUILD_DIR) $$(notdir $2)
+endef
 
-SRCS_FRONT   = $(wildcard Front-End/*.cpp)
-SRCS_MIDDLE  = $(wildcard Middle-End/*.cpp)
-SRCS_BACK    = $(wildcard Back-End/*.cpp)
-SRCS_REVERSE = $(wildcard Reverse-End/*.cpp) StackFunctions.cpp DoGraph.cpp
-SRCS_COMMON  = $(wildcard *.cpp)
+$(eval $(call GEN_RULES,front,$(BUILD_DIR)/bins/FrontEnd/front_end_exe))
+$(eval $(call GEN_RULES,middle,$(BUILD_DIR)/bins/MiddleEnd/middle_end_exe))
+$(eval $(call GEN_RULES,reverse,$(BUILD_DIR)/bins/ReverseEnd/reverse_end_exe))
 
-OBJS_FRONT   = $(patsubst Front-End/%.cpp,   build/front/%.o,   $(SRCS_FRONT))
-OBJS_MIDDLE  = $(patsubst Middle-End/%.cpp,  build/middle/%.o,  $(SRCS_MIDDLE))
-OBJS_BACK    = $(patsubst Back-End/%.cpp,    build/back/%.o,    $(SRCS_BACK))
-OBJS_REVERSE = $(patsubst Reverse-End/%.cpp, build/reverse/%.o, $(SRCS_REVERSE))
-OBJS_COMMON  = $(patsubst %.cpp,             build/common/%.o,  $(notdir $(SRCS_COMMON)))
+# Ensure the build directory is initialized
+$(BUILD_DIR)/build.ninja:
+	@if [ ! -d $(BUILD_DIR) ]; then \
+		meson setup $(BUILD_DIR); \
+	else \
+		echo "Build dir exists but is uninitialized. Running setup..."; \
+		meson setup --reconfigure $(BUILD_DIR); \
+	fi
 
-TREE_TO_CODE_OBJ = build/reverse/TreeToCode.o
-OBJS_ALL = $(OBJS_FRONT) $(OBJS_MIDDLE) $(OBJS_BACK) $(OBJS_COMMON)
-
-all: $(TARGET_ALL)
-front: $(TARGET_FRONT)
-middle: $(TARGET_MIDDLE)
-back: $(TARGET_BACK)
-solver: $(TARGET_ALL)
-reverse: $(TARGET_REVERSE)
-
-$(TARGET_FRONT): $(OBJS_FRONT) $(OBJS_COMMON) $(TREE_TO_CODE_OBJ)
-	@mkdir -p build/bin
-	@$(CC) $^ -o $@ $(LDFLAGS)
-
-$(TARGET_MIDDLE): $(OBJS_MIDDLE) $(OBJS_COMMON) $(OBJS_FRONT_NO_MAIN) $(TREE_TO_CODE_OBJ)
-	@mkdir -p build/bin
-	@$(CC) $^ -o $@ $(LDFLAGS)
-
-$(TARGET_BACK): $(OBJS_BACK) $(OBJS_COMMON) $(OBJS_FRONT_NO_MAIN) $(OBJS_MIDDLE)
-	@mkdir -p build/bin
-	@$(CC) $^ -o $@ $(LDFLAGS)
-
-$(TARGET_REVERSE): $(OBJS_REVERSE) $(OBJS_FRONT_NO_MAIN)
-	@mkdir -p build/bin
-	@$(CC) $^ -o $@ $(LDFLAGS)
-
-$(TARGET_ALL): $(OBJS_ALL)
-	@mkdir -p build/bin
-	@$(CC) $^ -o $@ $(LDFLAGS)
-
-build/front/%.o: Front-End/%.cpp
-	@mkdir -p build/front
-	@$(CC) $(CFLAGS) -c $< -o $@
-
-build/middle/%.o: Middle-End/%.cpp
-	@mkdir -p build/middle
-	@$(CC) $(CFLAGS) -c $< -o $@
-
-build/back/%.o: Back-End/%.cpp
-	@mkdir -p build/back
-	@$(CC) $(CFLAGS) -c $< -o $@
-
-build/reverse/%.o: Reverse-End/%.cpp
-	@mkdir -p build/reverse
-	@$(CC) $(CFLAGS) -c $< -o $@
-
-build/common/%.o: %.cpp
-	@mkdir -p build/common
-	@$(CC) $(CFLAGS) -c $< -o $@
+$(BUILD_DIR)/compile_commands.json: $(BUILD_DIR)/build.ninja
 
 clean:
-	rm -rf build
+	@meson compile -C $(BUILD_DIR) --clean 2>/dev/null || rm -rf $(BUILD_DIR)
 
-rebuild: clean all
+# 'rebuild' should use Meson's own reconfigure if possible, it's faster than rm -rf
+rebuild:
+	@meson setup --wipe $(BUILD_DIR)
+	@$(MAKE) all
 
-debug: $(TARGET_ALL)
-	./$(TARGET_ALL)
+# For local development enable in-place file changes
+FMT_MESON = -i
+FMT_CLANG_FORMAT = -i
 
-front-debug: $(TARGET_FRONT)
-	./$(TARGET_FRONT)
+fmt:
+	@meson format -r $(FMT_MESON)
+	@find bins libs -type f -name "*.c" -o -name "*.cpp" -o -name "*.h" -o -name "*.hpp" | xargs clang-format --Werror $(FMT_CLANG_FORMAT)
 
-reverse-debug: $(TARGET_REVERSE)
-	./$(TARGET_REVERSE)
+lint: $(BUILD_DIR)/compile_commands.json
+	@run-clang-tidy -quiet -p $(BUILD_DIR) bins libs
 
-middle-debug: $(TARGET_MIDDLE)
-	./$(TARGET_MIDDLE)
-
-back-debug: $(TARGET_BACK)
-	./$(TARGET_BACK)
+# For CI, checking without changing files
+check: FMT_MESON = --check-only
+check: FMT_CLANG_FORMAT = --dry-run
+check: fmt lint
 
 list:
-	@echo "Доступные цели:"
-	@echo "  make all|solver     - полная сборка"
-	@echo "  make front          - фронтенд"
-	@echo "  make middle         - мидл + фронтенд"
-	@echo "  make back           - бэк + все предыдущие"
-	@echo "  make reverse        - reverse-end (Reverse-End/*.cpp + common)"
+	@echo "Available targets:"
+	@echo "  all                            - Build everything"
+	@echo "  (front|middle|reverse)[-debug] - Build component [and run it]"
+	@echo "  fmt                            - Format code using clang-format"
+	@echo "  lint                           - Lint code using clang-tidy"
+	@echo "  rebuild                        - Wipe and regenerate build directory"
+	@echo "  clean                          - Delete build directory"
 
-.PHONY: all front middle back solver reverse clean rebuild debug front-debug middle-debug back-debug reverse-debug list```
+.PHONY: all clean rebuild list fmt lint front middle reverse front-debug middle-debug reverse-debug

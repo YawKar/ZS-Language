@@ -4,6 +4,6 @@
 #include "Common/Enums.h"
 #include "Common/Structs.h"
 
-void DoTreeInGraphviz(const LangNode_t *node, DumpInfo *Info, VariableArr *arr);
+void DoTreeInGraphviz(const LangNode_t* node, DumpInfo* Info, VariableArr* arr);
 
-#endif //DO_GRAPH_H_
+#endif  // DO_GRAPH_H_

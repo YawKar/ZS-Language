@@ -1,7 +1,7 @@
 #include "Common/DoGraph.h"
 
-#include <stdio.h>
 #include <assert.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 #include "Common/Enums.h"
@@ -10,17 +10,21 @@
 #define FILE_OUT "output.txt"
 #define MAX_COMMAND_SIZE 50
 
-static const char *PrintOperationType(const LangNode_t *node);
-static GraphOperation PrintExpressionType(const LangNode_t *node);
-static void DoSnprintf(DumpInfo *Info);
-static void PrintDotNode(FILE *file, const LangNode_t *node, bool flag, VariableArr *arr);
+static const char* PrintOperationType(const LangNode_t* node);
+static GraphOperation PrintExpressionType(const LangNode_t* node);
+static void DoSnprintf(DumpInfo* Info);
+static void PrintDotNode(
+    FILE* file, const LangNode_t* node, bool flag, VariableArr* arr
+);
 
-void DoTreeInGraphviz(const LangNode_t *node, DumpInfo *Info, VariableArr *arr) {
+void DoTreeInGraphviz(
+    const LangNode_t* node, DumpInfo* Info, VariableArr* arr
+) {
     assert(node);
     assert(Info);
     assert(arr);
 
-    FILE *file = fopen(Info->filename_to_write_graphviz, "w");
+    FILE* file = fopen(Info->filename_to_write_graphviz, "w");
     if (!file) {
         perror("Cannot open file for writing.");
         return;
@@ -28,15 +32,19 @@ void DoTreeInGraphviz(const LangNode_t *node, DumpInfo *Info, VariableArr *arr) 
 
     fprintf(file, "digraph BinaryTree {\n");
     fprintf(file, "    rankdir=TB;\n");
-    fprintf(file, "    node [shape=record, style=filled, fillcolor=lightblue];\n");
+    fprintf(
+        file, "    node [shape=record, style=filled, fillcolor=lightblue];\n"
+    );
     fprintf(file, "    edge [fontsize=10];\n\n");
     fprintf(file, "    graph [fontname=\"Arial\"];\n");
     fprintf(file, "    node [fontname=\"Arial\"];\n");
     fprintf(file, "    edge [fontname=\"Arial\"];\n");
 
     if (node->parent == NULL) {
-        fprintf(file, "    \"1\" [label=\"ROOT\", shape=rect, fillcolor=pink];\n");
-        fprintf(file, "    \"1\" -> \"%p\";\n", (void *)node);
+        fprintf(
+            file, "    \"1\" [label=\"ROOT\", shape=rect, fillcolor=pink];\n"
+        );
+        fprintf(file, "    \"1\" -> \"%p\";\n", (void*)node);
     } else {
         fprintf(file, "    // Empty tree\n");
     }
@@ -49,74 +57,120 @@ void DoTreeInGraphviz(const LangNode_t *node, DumpInfo *Info, VariableArr *arr) 
     DoSnprintf(Info);
 }
 
-
-static void PrintDotNode(FILE *file, const LangNode_t *node, bool flag, VariableArr *arr) {
+static void PrintDotNode(
+    FILE* file, const LangNode_t* node, bool flag, VariableArr* arr
+) {
     assert(file);
     assert(node);
     assert(arr);
 
-    const char *color_number    = "dodgerblue";
-    const char *color_variable  = "gold";
+    const char* color_number = "dodgerblue";
+    const char* color_variable = "gold";
 
     if (node->type == kNumber || node->type == kVariable) {
-        fprintf(file, "    \"%p\" [label=\"Parent: %p \n  Addr: %p \n  Type: %s\n", 
-            (void *)node, (void *)node->parent, (void *)node, PrintOperationType(node));
+        fprintf(
+            file,
+            "    \"%p\" [label=\"Parent: %p \n  Addr: %p \n  Type: %s\n",
+            (void*)node,
+            (void*)node->parent,
+            (void*)node,
+            PrintOperationType(node)
+        );
         if (node->type == kNumber) {
-            fprintf(file, "  Value: %lf  \nLeft: %p | Right: %p\" shape=egg color=black fillcolor=%s style=filled width=4 height=1.5 fixedsize=true];\n", 
-                node->value.number, (void *)node->left, (void *)node->right, color_number);
+            fprintf(
+                file,
+                "  Value: %lf  \nLeft: %p | Right: %p\" shape=egg color=black "
+                "fillcolor=%s style=filled width=4 height=1.5 "
+                "fixedsize=true];\n",
+                node->value.number,
+                (void*)node->left,
+                (void*)node->right,
+                color_number
+            );
         } else {
-            //printf("[PrintDotNode] Node type: %d, value.pos: %d\n", node->type, node->value.pos);
-            
-            fprintf(file, "  Value: %s  \nLeft: %p | Right: %p\" shape=octagon color=black fillcolor=%s style=filled width=4 height=1.5 fixedsize=true];\n", 
-                arr->var_array[(node->value).pos].variable_name, (void *)node->left, (void *)node->right, color_variable);
+            // printf("[PrintDotNode] Node type: %d, value.pos: %d\n",
+            // node->type, node->value.pos);
+
+            fprintf(
+                file,
+                "  Value: %s  \nLeft: %p | Right: %p\" shape=octagon "
+                "color=black fillcolor=%s style=filled width=4 height=1.5 "
+                "fixedsize=true];\n",
+                arr->var_array[(node->value).pos].variable_name,
+                (void*)node->left,
+                (void*)node->right,
+                color_variable
+            );
         }
     } else if (node->type == kOperation) {
-        fprintf(file, "    \"%p\" [label=\"{Parent: %p \n | Addr: %p \n | Type: %s\n", 
-            (void *)node, (void *)node->parent, (void *)node, PrintOperationType(node));
-        fprintf(file, " | Value: %s | {Left: %p | Right: %p}}\" shape=Mrecord color=black fillcolor=%s, style=filled];\n", 
-                PrintExpressionType(node).operation_name, (void *)node->left, (void *)node->right, PrintExpressionType(node).color);
+        fprintf(
+            file,
+            "    \"%p\" [label=\"{Parent: %p \n | Addr: %p \n | Type: %s\n",
+            (void*)node,
+            (void*)node->parent,
+            (void*)node,
+            PrintOperationType(node)
+        );
+        fprintf(
+            file,
+            " | Value: %s | {Left: %p | Right: %p}}\" shape=Mrecord "
+            "color=black fillcolor=%s, style=filled];\n",
+            PrintExpressionType(node).operation_name,
+            (void*)node->left,
+            (void*)node->right,
+            PrintExpressionType(node).color
+        );
     }
 
     if (node->left) {
-        fprintf(file, "    \"%p\" -> \"%p\";\n", 
-                (void *)node, (void *)node->left);
+        fprintf(
+            file, "    \"%p\" -> \"%p\";\n", (void*)node, (void*)node->left
+        );
         PrintDotNode(file, node->left, flag, arr);
     }
 
     if (node->right) {
-        fprintf(file, "    \"%p\" -> \"%p\";\n\n", 
-                (void *)node, (void *)node->right);
+        fprintf(
+            file, "    \"%p\" -> \"%p\";\n\n", (void*)node, (void*)node->right
+        );
         PrintDotNode(file, node->right, flag, arr);
     }
 }
 
-static void DoSnprintf(DumpInfo *Info) {
+static void DoSnprintf(DumpInfo* Info) {
     assert(Info);
 
-    snprintf(Info->image_file, sizeof(Info->image_file), "Images/graph_%zu.svg", Info->graph_counter);
-    Info->graph_counter ++;
+    snprintf(
+        Info->image_file,
+        sizeof(Info->image_file),
+        "Images/graph_%zu.svg",
+        Info->graph_counter
+    );
+    Info->graph_counter++;
     char cmd[MAX_COMMAND_SIZE] = {};
-    snprintf(cmd, sizeof(cmd), "dot " FILE_OUT " -T svg -o %s", Info->image_file);
-    
+    snprintf(
+        cmd, sizeof(cmd), "dot " FILE_OUT " -T svg -o %s", Info->image_file
+    );
+
     system(cmd);
 }
 
-static const char *PrintOperationType(const LangNode_t *node) {
+static const char* PrintOperationType(const LangNode_t* node) {
     assert(node);
 
-    switch(node->type) {
-    case (kNumber):
-        return "NUM";
-    case (kVariable):
-        return "VAR";
-    case (kOperation):
-        return "OP";
-    default: 
-        return NULL;
+    switch (node->type) {
+        case (kNumber):
+            return "NUM";
+        case (kVariable):
+            return "VAR";
+        case (kOperation):
+            return "OP";
+        default:
+            return NULL;
     }
 }
 
-static GraphOperation PrintExpressionType(const LangNode_t *node) {
+static GraphOperation PrintExpressionType(const LangNode_t* node) {
     assert(node);
 
     switch (node->value.operation) {
@@ -183,13 +237,14 @@ static GraphOperation PrintExpressionType(const LangNode_t *node) {
         case (kOperationNE):
             return {"NE", "lightgoldenrod"};
         case (kOperationHLT):
-        return {"HLT", "lightpink"};
+            return {"HLT", "lightpink"};
 
         case (kOperationParOpen):
         case (kOperationParClose):
         case (kOperationBraceOpen):
         case (kOperationBraceClose):
         case (kOperationNone):
-        default: return {"red", "red"};
+        default:
+            return {"red", "red"};
     }
 }

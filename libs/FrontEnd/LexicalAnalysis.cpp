@@ -1,43 +1,58 @@
 #include "FrontEnd/LexicalAnalysis.h"
 
-#include <stdio.h>
 #include <assert.h>
-#include <string.h>
 #include <ctype.h>
+#include <stdio.h>
+#include <string.h>
+
 #include <cstdlib>
 
 #include "Common/Enums.h"
-#include "Common/Structs.h"
 #include "Common/StackFunctions.h"
+#include "Common/Structs.h"
 #include "FrontEnd/LanguageFunctions.h"
 
-static bool SkipComment(const char **string);
-static void SkipSpaces(const char **string);
-static void SkipEmptyLines(const char **string);
-static bool ParseNumberToken(LangRoot *root, const char **string, Stack_Info *tokens, size_t *cnt);
-static bool ParseStringToken(LangRoot *root, const char **string, Stack_Info *tokens, size_t *cnt, VariableArr *Variable_Array);
+static bool SkipComment(const char** string);
+static void SkipSpaces(const char** string);
+static void SkipEmptyLines(const char** string);
+static bool ParseNumberToken(
+    LangRoot* root, const char** string, Stack_Info* tokens, size_t* cnt
+);
+static bool ParseStringToken(
+    LangRoot* root,
+    const char** string,
+    Stack_Info* tokens,
+    size_t* cnt,
+    VariableArr* Variable_Array
+);
 
-#define NEWN(num) NewNode(root, kNumber, ((Value){ .number = (num)}), NULL, NULL)
+#define NEWN(num) NewNode(root, kNumber, ((Value){.number = (num)}), NULL, NULL)
 #define NEWV(name) NewVariable(root, name, Variable_Array)
-#define NEWOP(op, left, right) NewNode(root, kOperation, (Value){ .operation = (op)}, left, right) 
+#define NEWOP(op, left, right) \
+    NewNode(root, kOperation, (Value){.operation = (op)}, left, right)
 
-#define CHECK_SYMBOL_AND_PUSH(symbol_to_check, op_type)                \
-    if (**string == symbol_to_check) {                                 \
+#define CHECK_SYMBOL_AND_PUSH(symbol_to_check, op_type)        \
+    if (**string == (symbol_to_check)) {                       \
+        StackPush(tokens, NEWOP(op_type, NULL, NULL), stderr); \
+        cnt++;                                                 \
+        (*string)++;                                           \
+        continue;                                              \
+    }
+
+#define CHECK_STROKE_AND_PUSH(line_to_check, op_type)                  \
+    if (strncmp(*string, line_to_check, strlen(line_to_check)) == 0) { \
         StackPush(tokens, NEWOP(op_type, NULL, NULL), stderr);         \
         cnt++;                                                         \
-        (*string)++;                                                   \
+        (*string) += strlen(line_to_check);                            \
         continue;                                                      \
     }
 
-#define CHECK_STROKE_AND_PUSH(line_to_check, op_type)                     \
-    if (strncmp(*string, line_to_check, strlen(line_to_check)) == 0) {    \
-        StackPush(tokens, NEWOP(op_type, NULL, NULL), stderr);            \
-        cnt++;                                                            \
-        (*string) += strlen(line_to_check);                               \
-        continue;                                                         \
-    }
-
-size_t CheckAndReturn(LangRoot *root, const char **string, Stack_Info *tokens, VariableArr *Variable_Array) {
+size_t CheckAndReturn(
+    LangRoot* root,
+    const char** string,
+    Stack_Info* tokens,
+    VariableArr* Variable_Array
+) {
     assert(root);
     assert(string);
     assert(tokens);
@@ -47,8 +62,7 @@ size_t CheckAndReturn(LangRoot *root, const char **string, Stack_Info *tokens, V
 
     printf("%s\n", *string);
     while (**string != '\0') {
-
-        //printf("DEBUG:::: %d\n", cnt);
+        // printf("DEBUG:::: %d\n", cnt);
         SkipEmptyLines(string);
         SkipSpaces(string);
         if (**string == '\0') break;
@@ -61,7 +75,7 @@ size_t CheckAndReturn(LangRoot *root, const char **string, Stack_Info *tokens, V
         CHECK_STROKE_AND_PUSH(BRACECL, kOperationBraceClose);
         CHECK_SYMBOL_AND_PUSH('(', kOperationParOpen);
         CHECK_SYMBOL_AND_PUSH(')', kOperationParClose);
-        
+
         CHECK_STROKE_AND_PUSH(BEQ, kOperationBE);
         CHECK_STROKE_AND_PUSH(AE, kOperationAE);
         CHECK_STROKE_AND_PUSH(EQUAL, kOperationE);
@@ -105,13 +119,15 @@ size_t CheckAndReturn(LangRoot *root, const char **string, Stack_Info *tokens, V
 
     // fprintf(stderr, "%zu\n\n", Variable_Array->size);
     // for (size_t i = 0; i < Variable_Array->size; i++) {
-    //     fprintf(stderr, "%s %d\n\n", Variable_Array->var_array[i].variable_name, Variable_Array->var_array[i].variable_value);
+    //     fprintf(stderr, "%s %d\n\n",
+    //     Variable_Array->var_array[i].variable_name,
+    //     Variable_Array->var_array[i].variable_value);
     // }
 
     return cnt;
 }
 
-static bool SkipComment(const char **string) {
+static bool SkipComment(const char** string) {
     assert(string);
 
     if ((*string)[0] == '/' && (*string)[1] == '/') {
@@ -124,30 +140,31 @@ static bool SkipComment(const char **string) {
 
     if ((*string)[0] == '/' && (*string)[1] == '*') {
         (*string) += 2;
-        while (**string != '\0' && !((*string)[0] == '*' && (*string)[1] == '/')) {
+        while (**string != '\0' &&
+               !((*string)[0] == '*' && (*string)[1] == '/')) {
             (*string)++;
         }
-        if (**string != '\0')
-            (*string) += 2;
+        if (**string != '\0') (*string) += 2;
         return true;
     }
 
     return false;
 }
 
-static void SkipSpaces(const char **string) {
+static void SkipSpaces(const char** string) {
     assert(string);
 
-    while (**string != '\0' && isspace((unsigned char)**string) && **string != '\n') {
+    while (**string != '\0' && isspace((unsigned char)**string) &&
+           **string != '\n') {
         (*string)++;
     }
 }
 
-static void SkipEmptyLines(const char **string) {
+static void SkipEmptyLines(const char** string) {
     assert(string);
 
     for (;;) {
-        const char *ptr = *string;
+        const char* ptr = *string;
 
         while (*ptr != '\0' && isspace((unsigned char)*ptr) && *ptr != '\n') {
             ptr++;
@@ -163,8 +180,9 @@ static void SkipEmptyLines(const char **string) {
     }
 }
 
-
-static bool ParseNumberToken(LangRoot *root, const char **string, Stack_Info *tokens, size_t *cnt) {
+static bool ParseNumberToken(
+    LangRoot* root, const char** string, Stack_Info* tokens, size_t* cnt
+) {
     assert(root);
     assert(string);
     assert(tokens);
@@ -198,17 +216,22 @@ static bool ParseNumberToken(LangRoot *root, const char **string, Stack_Info *to
     return true;
 }
 
-static bool ParseStringToken(LangRoot *root, const char **string, Stack_Info *tokens, size_t *cnt, VariableArr *Variable_Array) {
+static bool ParseStringToken(
+    LangRoot* root,
+    const char** string,
+    Stack_Info* tokens,
+    size_t* cnt,
+    VariableArr* Variable_Array
+) {
     assert(root);
     assert(string);
     assert(tokens);
     assert(cnt);
     assert(Variable_Array);
 
-    if (!(isalnum(**string) || **string == '_'))
-        return false;
+    if (!(isalnum(**string) || **string == '_')) return false;
 
-    const char *name_start = *string;
+    const char* name_start = *string;
     size_t len = 0;
 
     while (isalnum(**string) || **string == '_') {
@@ -216,7 +239,7 @@ static bool ParseStringToken(LangRoot *root, const char **string, Stack_Info *to
         len++;
     }
 
-    char *name = (char *)calloc(len + 1, 1);
+    char* name = (char*)calloc(len + 1, 1);
     strncpy(name, name_start, len);
     name[len] = '\0';
 

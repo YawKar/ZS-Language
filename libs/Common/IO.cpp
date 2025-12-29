@@ -1,9 +1,15 @@
 #include "Common/IO.h"
-#include <cassert>
-#include <cstdlib>
+
 #include <sys/stat.h>
 
-static long long SizeOfFile(const char *filename) {
+#include <cassert>
+#include <cstdio>
+#include <cstdlib>
+
+#include "Enums.h"
+#include "Structs.h"
+
+static long long SizeOfFile(const char* filename) {
     assert(filename);
 
     struct stat stbuf = {};
@@ -17,11 +23,11 @@ static long long SizeOfFile(const char *filename) {
     return stbuf.st_size;
 }
 
-static char *ReadToBuf(const char *filename, FILE *file, size_t filesize) {
+static char* ReadToBuf(const char* filename, FILE* file, size_t filesize) {
     assert(filename);
     assert(file);
 
-    char *buf_in = (char *) calloc (filesize + 2, sizeof(char));
+    char* buf_in = (char*)calloc(filesize + 2, sizeof(char));
     if (!buf_in) {
         fprintf(stderr, "ERROR while calloc.\n");
         return NULL;
@@ -29,7 +35,7 @@ static char *ReadToBuf(const char *filename, FILE *file, size_t filesize) {
 
     size_t bytes_read = fread(buf_in, 1, filesize, file);
 
-    char *buf_out = (char *) calloc (bytes_read + 1, 1);
+    char* buf_out = (char*)calloc(bytes_read + 1, 1);
     if (!buf_out) {
         fprintf(stderr, "ERROR while calloc buf_out.\n");
         free(buf_in);
@@ -48,7 +54,7 @@ static char *ReadToBuf(const char *filename, FILE *file, size_t filesize) {
     return buf_out;
 }
 
-void DoBufRead(FILE *file, const char *filename, FileInfo *Info) {
+void DoBufRead(FILE* file, const char* filename, FileInfo* Info) {
     assert(file);
     assert(filename);
     assert(Info);

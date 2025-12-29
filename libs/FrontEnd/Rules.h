@@ -14,7 +14,7 @@
     }
 
 #define FILE_OPEN_AND_CHECK(file, filename, mode) \
-    FILE *file = fopen(filename, mode);           \
+    FILE* file = fopen(filename, mode);           \
     if (!file) {                                  \
         perror("Error opening file");             \
         return kErrorOpening;                     \
@@ -27,6 +27,6 @@
     dump_info.filename_to_write_graphviz = "output.txt";           \
     strcpy(dump_info.message, "Expression tree");
 
-DifErrors ReadInfix(Language *root, DumpInfo *dump_info, const char *filename);
+DifErrors ReadInfix(Language* root, DumpInfo* dump_info, const char* filename);
 
-#endif //RULES_H_
+#endif  // RULES_H_

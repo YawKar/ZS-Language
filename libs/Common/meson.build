@@ -1,10 +1,6 @@
-common_lib_sources = files([
-  'DoGraph.cpp',
-  'StackFunctions.cpp',
-  'IO.cpp',
-])
+common_lib_sources = files('DoGraph.cpp', 'IO.cpp', 'StackFunctions.cpp')
 common_lib = library(
-  'common',
-  common_lib_sources,
-  include_directories: [libs_include],
+    'common_lib',
+    common_lib_sources,
+    include_directories: [libs_include],
 )

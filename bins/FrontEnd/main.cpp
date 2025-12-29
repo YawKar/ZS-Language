@@ -1,35 +1,36 @@
-#include "FrontEnd/Rules.h"
-#include "Common/Structs.h"
-#include "Common/Enums.h"
-#include "Common/IO.h"
-#include "FrontEnd/LanguageFunctions.h"
-#include "Common/DoGraph.h"
-#include "FrontEnd/TreeToAsm.h"
-#include "ReverseEnd/TreeToCode.h"
-#include "Common/StackFunctions.h"
-
+#include <assert.h>
 #include <stdio.h>
 #include <string.h>
-#include <assert.h>
 
-int main(int argc, char *argv[]) {
- // TODO square to asm segfault
- // TODO tree to code problems with writing
+#include "Common/DoGraph.h"
+#include "Common/Enums.h"
+#include "Common/IO.h"
+#include "Common/Structs.h"
+#include "FrontEnd/LanguageFunctions.h"
+#include "FrontEnd/Rules.h"
+#include "FrontEnd/TreeToAsm.h"
+#include "ReverseEnd/TreeToCode.h"
+
+int main(int argc, char* argv[]) {
+    // TODO square to asm segfault
+    // TODO tree to code problems with writing
 
     if (argc < 4) {
-        fprintf(stderr,
-                "Usage: %s <mode> <input_file> <output_file>\n"
-                "Modes:\n"
-                "  tree-asm\n"
-                "  code-asm\n"
-                "  code-tree\n",
-                argv[0]);
+        fprintf(
+            stderr,
+            "Usage: %s <mode> <input_file> <output_file>\n"
+            "Modes:\n"
+            "  tree-asm\n"
+            "  code-asm\n"
+            "  code-tree\n",
+            argv[0]
+        );
         return 1;
     }
 
-    const char *mode = argv[1];
-    const char *filename_in = argv[2];
-    const char *filename_out= argv[3];
+    const char* mode = argv[1];
+    const char* filename_in = argv[2];
+    const char* filename_out = argv[3];
 
     LangRoot root = {};
     LangRootCtor(&root);
@@ -42,14 +43,13 @@ int main(int argc, char *argv[]) {
     dump_info.tree = &root;
 
     Language lang_info = {
-        .root        = &root,
-        .tokens      = NULL,
-        .tokens_pos  = NULL,
-        .arr         = &variable_array
+        .root = &root,
+        .tokens = NULL,
+        .tokens_pos = NULL,
+        .arr = &variable_array
     };
 
     if (strcmp(mode, "tree-asm") == 0) {
-
         FILE_OPEN_AND_CHECK(ast_file, filename_in, "r");
 
         FileInfo info = {};
@@ -60,13 +60,17 @@ int main(int argc, char *argv[]) {
         LangRootCtor(&parsed_root);
 
         size_t pos = 0;
-        LangNode_t *tree = NULL;
+        LangNode_t* tree = NULL;
 
-        CHECK_ERROR_RETURN(ParseNodeFromString(info.buf_ptr, &pos, NULL, &tree, &variable_array));
+        CHECK_ERROR_RETURN(ParseNodeFromString(
+            info.buf_ptr, &pos, NULL, &tree, &variable_array
+        ));
 
         // fprintf(stderr, "%zu\n\n", variable_array.size);
         // for (size_t i = 0; i < variable_array.size; i++) {
-        //     fprintf(stderr, "%s %d\n\n", variable_array.var_array[i].variable_name, variable_array.var_array[i].variable_value);
+        //     fprintf(stderr, "%s %d\n\n",
+        //     variable_array.var_array[i].variable_name,
+        //     variable_array.var_array[i].variable_value);
         // }
 
         parsed_root.root = tree;
@@ -83,19 +87,17 @@ int main(int argc, char *argv[]) {
     }
 
     else if (strcmp(mode, "code-asm") == 0) {
-
         CHECK_ERROR_RETURN(ReadInfix(&lang_info, &dump_info, filename_in));
 
         FILE_OPEN_AND_CHECK(asm_file, filename_out, "w");
 
         int ram_base = 0;
         PrintProgram(asm_file, root.root, &variable_array, &ram_base);
-        
+
         fclose(asm_file);
     }
 
     else if (strcmp(mode, "code-tree") == 0) {
-
         CHECK_ERROR_RETURN(ReadInfix(&lang_info, &dump_info, filename_in));
 
         FILE_OPEN_AND_CHECK(ast_file, filename_out, "w");

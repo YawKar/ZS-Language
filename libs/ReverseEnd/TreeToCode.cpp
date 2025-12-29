@@ -1,88 +1,107 @@
 #include "ReverseEnd/TreeToCode.h"
 
-#include <stdio.h>
 #include <assert.h>
-#include <string.h>
 #include <ctype.h>
+#include <stdio.h>
+#include <string.h>
+
 #include <cstdlib>
 
 #include "Common/Enums.h"
 #include "Common/Structs.h"
-#include "FrontEnd/Rules.h"
 #include "FrontEnd/LanguageFunctions.h"
+#include "FrontEnd/Rules.h"
 
-static DifErrors CheckType(Lang_t title, LangNode_t *node, VariableArr *arr);
-static DifErrors ParseTitle(const char *buffer, size_t *pos, char **out_title);
-static DifErrors ParseMaybeNil(const char *buffer, size_t *pos, LangNode_t **out);
-static DifErrors ExpectClosingParen(const char *buffer, size_t *pos);
+static DifErrors CheckType(Lang_t title, LangNode_t* node, VariableArr* arr);
+static DifErrors ParseTitle(const char* buffer, size_t* pos, char** out_title);
+static DifErrors ParseMaybeNil(
+    const char* buffer, size_t* pos, LangNode_t** out
+);
+static DifErrors ExpectClosingParen(const char* buffer, size_t* pos);
 
-static int CountArgs(LangNode_t *args_root);
-static void RegisterInit(LangNode_t *func_name_node, LangNode_t *var_node, VariableArr *arr);
-static void ScanInitsInSubtree(LangNode_t *func_name_node, LangNode_t *root, VariableArr *arr);
-static void ComputeFuncSizes(LangNode_t *node, VariableArr *arr);
+static int CountArgs(LangNode_t* args_root);
+static void RegisterInit(
+    LangNode_t* func_name_node, LangNode_t* var_node, VariableArr* arr
+);
+static void ScanInitsInSubtree(
+    LangNode_t* func_name_node, LangNode_t* root, VariableArr* arr
+);
+static void ComputeFuncSizes(LangNode_t* node, VariableArr* arr);
 
-static void SkipSpaces(const char *buf, size_t *pos);
+static void SkipSpaces(const char* buf, size_t* pos);
 static DifErrors SyntaxErrorNode(size_t pos, char c);
 
-static void SkipSpaces(const char *buf, size_t *pos) {
+static void SkipSpaces(const char* buf, size_t* pos) {
     assert(buf);
     assert(pos);
 
-    while (buf[*pos] == ' ' || buf[*pos] == '\t' || buf[*pos] == '\n' || buf[*pos] == '\r') {
+    while (buf[*pos] == ' ' || buf[*pos] == '\t' || buf[*pos] == '\n' ||
+           buf[*pos] == '\r') {
         (*pos)++;
     }
 }
 
 static DifErrors SyntaxErrorNode(size_t pos, char c) {
-    fprintf(stderr, "Syntax error at position %zu: unexpected character '%c'\n", pos, (c == '\0' ? 'EOF' : c));
+    fprintf(
+        stderr,
+        "Syntax error at position %zu: unexpected character '%c'\n",
+        pos,
+        (c == '\0' ? 'EOF' : c)
+    );
 
     return kSyntaxError;
 }
 
 static const OpEntry OP_TABLE[] = {
-    { "+",      kOperationAdd },          // "+" → "augeo"
-    { "-",      kOperationSub },          // "-" → "minuo"
-    { "*",      kOperationMul },          // "*" → "multiplico"
-    { "/",      kOperationDiv },          // "/" → "divido"
-    { "^",      kOperationPow },
+    {"+", kOperationAdd},  // "+" → "augeo"
+    {"-", kOperationSub},  // "-" → "minuo"
+    {"*", kOperationMul},  // "*" → "multiplico"
+    {"/", kOperationDiv},  // "/" → "divido"
+    {"^", kOperationPow},
 
-    { "sin",    kOperationSin },
-    { "sqrt",   kOperationSQRT },
-    { "cos",    kOperationCos },
-    { "tg",     kOperationTg },
-    { "ln",     kOperationLn },
-    { "arctg",  kOperationArctg },
-    { "sinh",   kOperationSinh },
-    { "cosh",   kOperationCosh },
-    { "tgh",    kOperationTgh },
+    {"sin", kOperationSin},
+    {"sqrt", kOperationSQRT},
+    {"cos", kOperationCos},
+    {"tg", kOperationTg},
+    {"ln", kOperationLn},
+    {"arctg", kOperationArctg},
+    {"sinh", kOperationSinh},
+    {"cosh", kOperationCosh},
+    {"tgh", kOperationTgh},
 
-    { "=",      kOperationIs },
-    { "if",     kOperationIf },           // "if" → "si"
-    { "else",   kOperationElse },         // "else" → "altius"
-    { "while",  kOperationWhile },        // "while" → "perpetuum"
-    { "func",   kOperationFunction },     // "func" → "incantatio"
-    { "return", kOperationReturn },       // "return" → "reporto"
-    { "call",   kOperationCall },
-    { "print",  kOperationWrite },        // "print" → "revelatio"
-    { "scanf",  kOperationRead },         // "scanf" → "augurio"
-    { "exit",  kOperationHLT},
+    {"=", kOperationIs},
+    {"if", kOperationIf},          // "if" → "si"
+    {"else", kOperationElse},      // "else" → "altius"
+    {"while", kOperationWhile},    // "while" → "perpetuum"
+    {"func", kOperationFunction},  // "func" → "incantatio"
+    {"return", kOperationReturn},  // "return" → "reporto"
+    {"call", kOperationCall},
+    {"print", kOperationWrite},  // "print" → "revelatio"
+    {"scanf", kOperationRead},   // "scanf" → "augurio"
+    {"exit", kOperationHLT},
 
-    { "<",      kOperationB },
-    { "<=",     kOperationBE },
-    { ">",      kOperationA },
-    { ">=",     kOperationAE },
-    { "==",     kOperationE },            // "==" → "aequalis"
-    { "!=",     kOperationNE },
+    {"<", kOperationB},
+    {"<=", kOperationBE},
+    {">", kOperationA},
+    {">=", kOperationAE},
+    {"==", kOperationE},  // "==" → "aequalis"
+    {"!=", kOperationNE},
 
-    { ";",      kOperationThen },
-    { ",",      kOperationComma },
+    {";", kOperationThen},
+    {",", kOperationComma},
 
-    { "NULL",   kOperationNone },
+    {"NULL", kOperationNone},
 };
 
 static const size_t OP_TABLE_SIZE = sizeof(OP_TABLE) / sizeof(OP_TABLE[0]);
 
-DifErrors ParseNodeFromString(const char *buffer, size_t *pos, LangNode_t *parent, LangNode_t **node_to_add, VariableArr *arr) {
+DifErrors ParseNodeFromString(
+    const char* buffer,
+    size_t* pos,
+    LangNode_t* parent,
+    LangNode_t** node_to_add,
+    VariableArr* arr
+) {
     assert(buffer);
     assert(pos);
     assert(node_to_add);
@@ -93,13 +112,13 @@ DifErrors ParseNodeFromString(const char *buffer, size_t *pos, LangNode_t *paren
         return kSuccess;
     }
 
-    char *title = NULL;
+    char* title = NULL;
     err = ParseTitle(buffer, pos, &title);
     if (err != kSuccess) {
         return err;
     }
 
-    LangNode_t *node = NULL;
+    LangNode_t* node = NULL;
     NodeCtor(&node, NULL);
     node->parent = parent;
 
@@ -109,26 +128,26 @@ DifErrors ParseNodeFromString(const char *buffer, size_t *pos, LangNode_t *paren
         return err;
     }
 
-    LangNode_t *left = NULL;
+    LangNode_t* left = NULL;
     CHECK_ERROR_RETURN(ParseNodeFromString(buffer, pos, node, &left, arr));
     node->left = left;
 
-    LangNode_t *right = NULL;
+    LangNode_t* right = NULL;
     CHECK_ERROR_RETURN(ParseNodeFromString(buffer, pos, node, &right, arr));
     node->right = right;
 
-    if (node->type == kOperation && node->value.operation == kOperationFunction) {
+    if (node->type == kOperation &&
+        node->value.operation == kOperationFunction) {
         ComputeFuncSizes(node, arr);
     }
 
     CHECK_ERROR_RETURN(ExpectClosingParen(buffer, pos));
 
-
     *node_to_add = node;
     return kSuccess;
 }
 
-static void ComputeFuncSizes(LangNode_t *node, VariableArr *arr) {
+static void ComputeFuncSizes(LangNode_t* node, VariableArr* arr) {
     assert(arr);
     if (!node) return;
 
@@ -137,10 +156,9 @@ static void ComputeFuncSizes(LangNode_t *node, VariableArr *arr) {
 
     if (node->type == kOperation &&
         node->value.operation == kOperationFunction) {
-
-        LangNode_t *func_name = node->left;
-        LangNode_t *args_root = node->right ? node->right->left  : NULL;
-        LangNode_t *body_root = node->right ? node->right->right : NULL;
+        LangNode_t* func_name = node->left;
+        LangNode_t* args_root = node->right ? node->right->left : NULL;
+        LangNode_t* body_root = node->right ? node->right->right : NULL;
 
         int argc = CountArgs(args_root);
 
@@ -150,11 +168,10 @@ static void ComputeFuncSizes(LangNode_t *node, VariableArr *arr) {
     }
 }
 
-
-static DifErrors CheckType(Lang_t title, LangNode_t *node, VariableArr *arr) {
+static DifErrors CheckType(Lang_t title, LangNode_t* node, VariableArr* arr) {
     assert(node);
     assert(arr);
-    
+
     for (size_t i = 0; i < OP_TABLE_SIZE; i++) {
         if (strcmp(OP_TABLE[i].name, title) == 0) {
             node->type = kOperation;
@@ -187,8 +204,7 @@ static DifErrors CheckType(Lang_t title, LangNode_t *node, VariableArr *arr) {
         }
     }
 
-    if (arr->size >= arr->capacity)
-        return kNoMemory;
+    if (arr->size >= arr->capacity) return kNoMemory;
 
     ResizeArray(arr);
     arr->var_array[arr->size].variable_name = strdup(title);
@@ -201,7 +217,7 @@ static DifErrors CheckType(Lang_t title, LangNode_t *node, VariableArr *arr) {
     return kSuccess;
 }
 
-static int CountArgs(LangNode_t *args_root) {
+static int CountArgs(LangNode_t* args_root) {
     if (!args_root) return 0;
 
     if (args_root->type == kOperation &&
@@ -212,28 +228,32 @@ static int CountArgs(LangNode_t *args_root) {
     return 1;
 }
 
-static void RegisterInit(LangNode_t *func_name_node, LangNode_t *var_node, VariableArr *arr) {
+static void RegisterInit(
+    LangNode_t* func_name_node, LangNode_t* var_node, VariableArr* arr
+) {
     assert(func_name_node);
     assert(var_node);
     assert(arr);
 
-    VariableInfo *func_vi = &arr->var_array[func_name_node->value.pos];
-    VariableInfo *var_vi  = &arr->var_array[var_node->value.pos];
+    VariableInfo* func_vi = &arr->var_array[func_name_node->value.pos];
+    VariableInfo* var_vi = &arr->var_array[var_node->value.pos];
 
-    if (!var_vi->func_made || strcmp(var_vi->func_made, func_vi->variable_name) != 0) {
+    if (!var_vi->func_made ||
+        strcmp(var_vi->func_made, func_vi->variable_name) != 0) {
         var_vi->func_made = strdup(func_vi->variable_name);
         func_vi->variable_value++;
     }
 }
 
-static void ScanInitsInSubtree(LangNode_t *func_name_node, LangNode_t *root, VariableArr *arr) {
+static void ScanInitsInSubtree(
+    LangNode_t* func_name_node, LangNode_t* root, VariableArr* arr
+) {
     assert(func_name_node);
     assert(arr);
     if (!root) return;
 
     if (root->type == kOperation && root->value.operation == kOperationIs &&
         root->left && root->left->type == kVariable) {
-        
         RegisterInit(func_name_node, root->left, arr);
     }
 
@@ -241,28 +261,34 @@ static void ScanInitsInSubtree(LangNode_t *func_name_node, LangNode_t *root, Var
     ScanInitsInSubtree(func_name_node, root->right, arr);
 }
 
-static void GenExpr(LangNode_t *node, FILE *out, VariableArr *arr);
-static void GenThenChain(LangNode_t *node, FILE *out, VariableArr *arr, int indent);
-static void GenIf(LangNode_t *node, FILE *out, VariableArr *arr, int indent);
-static void GenWhile(LangNode_t *node, FILE *out, VariableArr *arr, int indent);
-static void GenFunctionDeclare(LangNode_t *node, FILE *out, VariableArr *arr, int indent);
-static void GenFunctionCall(LangNode_t *node, FILE *out, VariableArr *arr, int indent);
+static void GenExpr(LangNode_t* node, FILE* out, VariableArr* arr);
+static void GenThenChain(
+    LangNode_t* node, FILE* out, VariableArr* arr, int indent
+);
+static void GenIf(LangNode_t* node, FILE* out, VariableArr* arr, int indent);
+static void GenWhile(LangNode_t* node, FILE* out, VariableArr* arr, int indent);
+static void GenFunctionDeclare(
+    LangNode_t* node, FILE* out, VariableArr* arr, int indent
+);
+static void GenFunctionCall(
+    LangNode_t* node, FILE* out, VariableArr* arr, int indent
+);
 
-static void PrintIndent(FILE *out, int indent) {
+static void PrintIndent(FILE* out, int indent) {
     assert(out);
 
-    for (int i = 0; i < indent; ++i)
-        fputc('\t', out);
+    for (int i = 0; i < indent; ++i) fputc('\t', out);
 }
 
-void GenerateCodeFromAST(LangNode_t *node, FILE *out, VariableArr *arr, int indent) {
+void GenerateCodeFromAST(
+    LangNode_t* node, FILE* out, VariableArr* arr, int indent
+) {
     assert(out);
     assert(arr);
     if (!node) return;
 
     if (node->type == kOperation) {
         switch (node->value.operation) {
-
             case kOperationIf:
                 GenIf(node, out, arr, indent);
                 return;
@@ -285,8 +311,7 @@ void GenerateCodeFromAST(LangNode_t *node, FILE *out, VariableArr *arr, int inde
             case kOperationReturn:
                 PrintIndent(out, indent);
                 fprintf(out, "%s ", RETURN);
-                if (node->left)
-                    GenExpr(node->left, out, arr);
+                if (node->left) GenExpr(node->left, out, arr);
 
                 fprintf(out, "%s\n", THEN);
                 return;
@@ -322,16 +347,16 @@ void GenerateCodeFromAST(LangNode_t *node, FILE *out, VariableArr *arr, int inde
     fprintf(out, "%s\n", THEN);
 }
 
-static void GenThenChain(LangNode_t *node, FILE *out, VariableArr *arr, int indent) {
+static void GenThenChain(
+    LangNode_t* node, FILE* out, VariableArr* arr, int indent
+) {
     assert(out);
     assert(arr);
 
-    LangNode_t *stmt = node;
+    LangNode_t* stmt = node;
 
-    while (stmt &&
-           stmt->type == kOperation &&
+    while (stmt && stmt->type == kOperation &&
            stmt->value.operation == kOperationThen) {
-
         if (stmt->left) {
             GenerateCodeFromAST(stmt->left, out, arr, indent);
         }
@@ -344,18 +369,19 @@ static void GenThenChain(LangNode_t *node, FILE *out, VariableArr *arr, int inde
     }
 }
 
-static void GenIf(LangNode_t *node, FILE *out, VariableArr *arr, int indent) {
+static void GenIf(LangNode_t* node, FILE* out, VariableArr* arr, int indent) {
     assert(out);
     assert(arr);
     assert(node);
 
-    LangNode_t *condition = node->left;
-    LangNode_t *body      = node->right;
+    LangNode_t* condition = node->left;
+    LangNode_t* body = node->right;
 
-    LangNode_t *then_branch = NULL;
-    LangNode_t *else_branch = NULL;
+    LangNode_t* then_branch = NULL;
+    LangNode_t* else_branch = NULL;
 
-    if (body && body->type == kOperation && body->value.operation == kOperationElse) {
+    if (body && body->type == kOperation &&
+        body->value.operation == kOperationElse) {
         then_branch = body->left;
         else_branch = body->right;
     } else {
@@ -367,8 +393,7 @@ static void GenIf(LangNode_t *node, FILE *out, VariableArr *arr, int indent) {
     GenExpr(condition, out, arr);
     fprintf(out, ") %s\n", BRACEOP);
 
-    if (then_branch)
-        GenThenChain(then_branch, out, arr, indent + 1);
+    if (then_branch) GenThenChain(then_branch, out, arr, indent + 1);
 
     PrintIndent(out, indent);
     fprintf(out, "%s", BRACECL);
@@ -383,7 +408,9 @@ static void GenIf(LangNode_t *node, FILE *out, VariableArr *arr, int indent) {
     fprintf(out, "\n");
 }
 
-static void GenWhile(LangNode_t *node, FILE *out, VariableArr *arr, int indent) {
+static void GenWhile(
+    LangNode_t* node, FILE* out, VariableArr* arr, int indent
+) {
     assert(node);
     assert(out);
     assert(arr);
@@ -401,16 +428,18 @@ static void GenWhile(LangNode_t *node, FILE *out, VariableArr *arr, int indent) 
     fprintf(out, "%s\n", BRACECL);
 }
 
-static void GenFunctionDeclare(LangNode_t *node, FILE *out, VariableArr *arr, int indent) {
+static void GenFunctionDeclare(
+    LangNode_t* node, FILE* out, VariableArr* arr, int indent
+) {
     assert(node);
     assert(out);
     assert(arr);
 
-    LangNode_t *name = node->left;
-    LangNode_t *pair = node->right;
+    LangNode_t* name = node->left;
+    LangNode_t* pair = node->right;
 
-    LangNode_t *args = NULL;
-    LangNode_t *body = NULL;
+    LangNode_t* args = NULL;
+    LangNode_t* body = NULL;
 
     if (pair && pair->type == kOperation &&
         pair->value.operation == kOperationThen) {
@@ -441,13 +470,15 @@ static void GenFunctionDeclare(LangNode_t *node, FILE *out, VariableArr *arr, in
     fprintf(out, "%s\n", BRACECL);
 }
 
-static void GenFunctionCall(LangNode_t *node, FILE *out, VariableArr *arr, int indent) {
+static void GenFunctionCall(
+    LangNode_t* node, FILE* out, VariableArr* arr, int indent
+) {
     assert(node);
     assert(out);
     assert(arr);
 
-    LangNode_t *name = node->left;
-    LangNode_t *args = node->right;
+    LangNode_t* name = node->left;
+    LangNode_t* args = node->right;
 
     PrintIndent(out, indent);
 
@@ -464,22 +495,34 @@ static void GenFunctionCall(LangNode_t *node, FILE *out, VariableArr *arr, int i
 
 static int GetOpPrecedence(OperationTypes op) {
     switch (op) {
-        case kOperationPow:     return 4;
-        case kOperationMul:     return 3;
-        case kOperationDiv:     return 3;
-        case kOperationAdd:     return 2;
-        case kOperationSub:     return 2;
-        case kOperationB:       return 1;
-        case kOperationBE:      return 1;
-        case kOperationA:       return 1;
-        case kOperationAE:      return 1;
-        case kOperationE:       return 1;
-        case kOperationNE:      return 1;
-        default:                return 0;
+        case kOperationPow:
+            return 4;
+        case kOperationMul:
+            return 3;
+        case kOperationDiv:
+            return 3;
+        case kOperationAdd:
+            return 2;
+        case kOperationSub:
+            return 2;
+        case kOperationB:
+            return 1;
+        case kOperationBE:
+            return 1;
+        case kOperationA:
+            return 1;
+        case kOperationAE:
+            return 1;
+        case kOperationE:
+            return 1;
+        case kOperationNE:
+            return 1;
+        default:
+            return 0;
     }
 }
 
-static void GenExpr(LangNode_t *node, FILE *out, VariableArr *arr) {
+static void GenExpr(LangNode_t* node, FILE* out, VariableArr* arr) {
     if (!node) return;
     assert(out);
     assert(arr);
@@ -502,25 +545,30 @@ static void GenExpr(LangNode_t *node, FILE *out, VariableArr *arr) {
     }
 
     switch (node->value.operation) {
-
         case kOperationAdd:
         case kOperationSub:
         case kOperationMul:
         case kOperationDiv:
         case kOperationPow: {
-            const char *op = "?";
-            if (node->value.operation == kOperationAdd) op = ADD;
-            else if (node->value.operation == kOperationSub) op = SUB;
-            else if (node->value.operation == kOperationMul) op = MUL;
-            else if (node->value.operation == kOperationDiv) op = DIV;
-            else if (node->value.operation == kOperationPow) op = "^";
+            const char* op = "?";
+            if (node->value.operation == kOperationAdd)
+                op = ADD;
+            else if (node->value.operation == kOperationSub)
+                op = SUB;
+            else if (node->value.operation == kOperationMul)
+                op = MUL;
+            else if (node->value.operation == kOperationDiv)
+                op = DIV;
+            else if (node->value.operation == kOperationPow)
+                op = "^";
 
             if (node->left && node->left->type == kOperation &&
-                GetOpPrecedence(node->left->value.operation) < GetOpPrecedence(node->value.operation)) {
+                GetOpPrecedence(node->left->value.operation) <
+                    GetOpPrecedence(node->value.operation)) {
                 fprintf(out, "(");
                 GenExpr(node->left, out, arr);
                 fprintf(out, ")");
-                
+
             } else {
                 GenExpr(node->left, out, arr);
             }
@@ -535,19 +583,25 @@ static void GenExpr(LangNode_t *node, FILE *out, VariableArr *arr) {
         case kOperationAE:
         case kOperationE:
         case kOperationNE: {
-            const char *op = "?";
-            if      (node->value.operation == kOperationB)  op = B;
-            else if (node->value.operation == kOperationBE) op = BEQ;
-            else if (node->value.operation == kOperationA)  op = A;
-            else if (node->value.operation == kOperationAE) op = AE;
-            else if (node->value.operation == kOperationE)  op = EQUAL;
-            else if (node->value.operation == kOperationNE) op = "!=";
+            const char* op = "?";
+            if (node->value.operation == kOperationB)
+                op = B;
+            else if (node->value.operation == kOperationBE)
+                op = BEQ;
+            else if (node->value.operation == kOperationA)
+                op = A;
+            else if (node->value.operation == kOperationAE)
+                op = AE;
+            else if (node->value.operation == kOperationE)
+                op = EQUAL;
+            else if (node->value.operation == kOperationNE)
+                op = "!=";
 
-            //fprintf(out, "(");
+            // fprintf(out, "(");
             GenExpr(node->left, out, arr);
             fprintf(out, " %s ", op);
             GenExpr(node->right, out, arr);
-            //fprintf(out, ")");
+            // fprintf(out, ")");
             return;
         }
 
@@ -557,11 +611,10 @@ static void GenExpr(LangNode_t *node, FILE *out, VariableArr *arr) {
             GenExpr(node->right, out, arr);
             return;
 
-        case kOperationCall: //
+        case kOperationCall:  //
             GenExpr(node->left, out, arr);
             fprintf(out, "(");
-            if (node->right)
-                GenExpr(node->right, out, arr);
+            if (node->right) GenExpr(node->right, out, arr);
             fprintf(out, ")");
             return;
 
@@ -571,14 +624,13 @@ static void GenExpr(LangNode_t *node, FILE *out, VariableArr *arr) {
             GenExpr(node->right, out, arr);
             return;
 
-
-        // case kOperationCall:
-        //     GenExpr(node->left, out, arr);
-        //     fprintf(out, "(");
-        //     if (node->right)
-        //         GenExpr(node->right, out, arr);
-        //     fprintf(out, ")");
-        //     return;
+            // case kOperationCall:
+            //     GenExpr(node->left, out, arr);
+            //     fprintf(out, "(");
+            //     if (node->right)
+            //         GenExpr(node->right, out, arr);
+            //     fprintf(out, ")");
+            //     return;
 
         case kOperationSin:
         case kOperationCos:
@@ -589,16 +641,25 @@ static void GenExpr(LangNode_t *node, FILE *out, VariableArr *arr) {
         case kOperationCosh:
         case kOperationTgh:
         case kOperationSQRT: {
-            const char *name = "func";
-            if      (node->value.operation == kOperationSin)   name = "sin";
-            else if (node->value.operation == kOperationCos)   name = "cos";
-            else if (node->value.operation == kOperationTg)    name = "tg";
-            else if (node->value.operation == kOperationLn)    name = "ln";
-            else if (node->value.operation == kOperationArctg) name = "arctg";
-            else if (node->value.operation == kOperationSinh)  name = "sinh";
-            else if (node->value.operation == kOperationCosh)  name = "cosh";
-            else if (node->value.operation == kOperationTgh)   name = "tgh";
-            else if (node->value.operation == kOperationSQRT)  name = "sqrt";
+            const char* name = "func";
+            if (node->value.operation == kOperationSin)
+                name = "sin";
+            else if (node->value.operation == kOperationCos)
+                name = "cos";
+            else if (node->value.operation == kOperationTg)
+                name = "tg";
+            else if (node->value.operation == kOperationLn)
+                name = "ln";
+            else if (node->value.operation == kOperationArctg)
+                name = "arctg";
+            else if (node->value.operation == kOperationSinh)
+                name = "sinh";
+            else if (node->value.operation == kOperationCosh)
+                name = "cosh";
+            else if (node->value.operation == kOperationTgh)
+                name = "tgh";
+            else if (node->value.operation == kOperationSQRT)
+                name = "sqrt";
 
             fprintf(out, "%s(", name);
             GenExpr(node->left, out, arr);
@@ -606,21 +667,21 @@ static void GenExpr(LangNode_t *node, FILE *out, VariableArr *arr) {
             return;
         }
 
-        
         default:
             fprintf(out, "UNSUPPORTED_OP");
             return;
     }
 }
 
-
-static DifErrors ParseMaybeNil(const char *buffer, size_t *pos, LangNode_t **out) {
+static DifErrors ParseMaybeNil(
+    const char* buffer, size_t* pos, LangNode_t** out
+) {
     assert(buffer);
     assert(pos);
     assert(out);
 
     SkipSpaces(buffer, pos);
-    //printf("DEBUG: nil node\n");
+    // printf("DEBUG: nil node\n");
 
     if (strncmp(buffer + *pos, "nil", 3) == 0) {
         *pos += 3;
@@ -631,31 +692,27 @@ static DifErrors ParseMaybeNil(const char *buffer, size_t *pos, LangNode_t **out
     return kFailure;
 }
 
-static DifErrors ParseTitle(const char *buffer, size_t *pos, char **out_title) {
+static DifErrors ParseTitle(const char* buffer, size_t* pos, char** out_title) {
     assert(buffer);
     assert(pos);
     assert(out_title);
 
-    if (buffer[*pos] != '(')
-        return SyntaxErrorNode(*pos, buffer[*pos]);
+    if (buffer[*pos] != '(') return SyntaxErrorNode(*pos, buffer[*pos]);
     (*pos)++;
     SkipSpaces(buffer, pos);
 
-    if (buffer[*pos] != '"')
-        return SyntaxErrorNode(*pos, buffer[*pos]);
+    if (buffer[*pos] != '"') return SyntaxErrorNode(*pos, buffer[*pos]);
 
     (*pos)++;
     size_t start = *pos;
 
-    while (buffer[*pos] != '"' && buffer[*pos] != '\0')
-        (*pos)++;
+    while (buffer[*pos] != '"' && buffer[*pos] != '\0') (*pos)++;
 
-    if (buffer[*pos] == '\0')
-        return SyntaxErrorNode(*pos, buffer[*pos]);
+    if (buffer[*pos] == '\0') return SyntaxErrorNode(*pos, buffer[*pos]);
 
     size_t len = *pos - start;
 
-    char *title = (char *) calloc(len + 1, 1);
+    char* title = (char*)calloc(len + 1, 1);
     if (!title) return kNoMemory;
 
     memcpy(title, buffer + start, len);
@@ -668,13 +725,11 @@ static DifErrors ParseTitle(const char *buffer, size_t *pos, char **out_title) {
     return kSuccess;
 }
 
-static DifErrors ExpectClosingParen(const char *buffer, size_t *pos) {
+static DifErrors ExpectClosingParen(const char* buffer, size_t* pos) {
     SkipSpaces(buffer, pos);
 
-    if (buffer[*pos] != ')')
-        return SyntaxErrorNode(*pos, buffer[*pos]);
+    if (buffer[*pos] != ')') return SyntaxErrorNode(*pos, buffer[*pos]);
     (*pos)++;
 
     return kSuccess;
 }
-

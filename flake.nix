@@ -15,6 +15,9 @@
           gccVersion = "gcc15";
           gccToolchain = pkgs."${gccVersion}";
           gccStdenv = pkgs."${gccVersion}Stdenv";
+          llvmVersion = "21";
+          llvmClangToolchain = pkgs."llvmPackages_${llvmVersion}".clang-tools;
+          llvmClangUnwrapped = pkgs."llvmPackages_${llvmVersion}".clang-unwrapped;
         in
         {
           devShells.default = pkgs.mkShell.override { stdenv = gccStdenv; } {
@@ -28,17 +31,28 @@
               gnumake
             ] ++ [
               gccToolchain
+              llvmClangToolchain
+              llvmClangUnwrapped
+            ];
+
+            # These are needed for `clang-tidy` (and not only) to find GCC's std libs
+            NIX_CFLAGS_COMPILE = [
+              # general
+              "-isystem ${gccStdenv.cc.cc}/include/c++/${gccStdenv.cc.version}"
+              # specific for your platform (e.g. bits/c++config.h)
+              "-isystem ${gccStdenv.cc.cc}/include/c++/${gccStdenv.cc.version}/${gccStdenv.hostPlatform.config}"
             ];
 
             shellHook = ''
               export PS1=[Language]$PS1
               echo ""
               echo "Development shell loaded!"
-              echo "  system: ${system}"
-              echo "  g++:    $(g++ -dumpversion)"
-              echo "  gcc:    $(gcc -dumpversion)"
-              echo "  make:   $(make --version | head -1)
-              echo "  meson:  $(meson --version)"
+              echo "  system:     ${system}"
+              echo "  g++:        $(g++ -dumpversion)"
+              echo "  gcc:        $(gcc -dumpversion)"
+              echo "  make:       $(make --version | head -1)"
+              echo "  meson:      $(meson --version)"
+              echo "  clang-tidy: $(clang-tidy --version | grep -Eo 'version .*')"
             '';
           };
         };
