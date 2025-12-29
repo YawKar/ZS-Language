@@ -55,7 +55,7 @@ $(TARGET_MIDDLE): $(OBJS_MIDDLE) $(OBJS_COMMON) $(OBJS_FRONT_NO_MAIN) $(TREE_TO_
 	@mkdir -p build/bin
 	@$(CC) $^ -o $@ $(LDFLAGS)
 
-$(TARGET_BACK): $(OBJS_BACK) $(OBJS_COMMON) $(OBJS_FRONT) $(OBJS_MIDDLE)
+$(TARGET_BACK): $(OBJS_BACK) $(OBJS_COMMON) $(OBJS_FRONT_NO_MAIN) $(OBJS_MIDDLE)
 	@mkdir -p build/bin
 	@$(CC) $^ -o $@ $(LDFLAGS)
 
