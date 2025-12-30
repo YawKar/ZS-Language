@@ -66,3 +66,4 @@ add_project_arguments(cpp_args, language: ['c', 'cpp'])
 
 subdir('libs')
 subdir('bins')
+subdir('tests')

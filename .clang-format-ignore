@@ -1,0 +1,3 @@
+libs/External/**/*
+build/**/*
+.git/**/*
