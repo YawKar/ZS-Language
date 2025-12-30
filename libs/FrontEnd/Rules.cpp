@@ -81,7 +81,10 @@ static LangNode_t* GetNumber(Language* lang_info);
 static LangNode_t* GetString(Language* lang_info);
 
 DifErrors ReadInfix(
-    Language* lang_info, DumpInfo* dump_info, const char* filename
+    Language* lang_info,
+    DumpInfo* dump_info,
+    const char* filename,
+    bool do_graphviz
 ) {
     assert(lang_info);
     assert(dump_info);
@@ -96,7 +99,11 @@ DifErrors ReadInfix(
     Stack_Info tokens = {};
     StackCtor(&tokens, 1, stderr);
     CheckAndReturn(
-        lang_info->root, (const char**)&Info.buf_ptr, &tokens, lang_info->arr
+        lang_info->root,
+        (const char**)&Info.buf_ptr,
+        &tokens,
+        lang_info->arr,
+        false
     );
     lang_info->tokens = &tokens;
 
@@ -112,7 +119,9 @@ DifErrors ReadInfix(
 
     strcpy(dump_info->message, "Code");
 
-    DoTreeInGraphviz(lang_info->root->root, dump_info, lang_info->arr);
+    if (do_graphviz) {
+        DoTreeInGraphviz(lang_info->root->root, dump_info, lang_info->arr);
+    }
     StackDtor(&tokens, stderr);
 
     return kSuccess;
@@ -677,7 +686,7 @@ LangNode_t* GetAssignment(Language* lang_info, LangNode_t* func) {
             POISON &&
         value->type == kNumber) {
         lang_info->arr->var_array[maybe_var->value.pos].variable_value =
-            value->value.number;
+            (int)value->value.number;
     }
 
     return NEWOP(kOperationThen, assign_op, NULL);
@@ -716,6 +725,7 @@ static LangNode_t* GetIf(Language* lang_info, LangNode_t* func) {
         if (!number) {
             fprintf(stderr, "SYNTAX_ERROR_IF: no expression if if written.\n");
         }
+        assert(number);
         sign->left = cond;
         cond->parent = sign;
         sign->right = number;
@@ -790,6 +800,7 @@ static LangNode_t* GetElse(
     }
 
     CHECK_EXPECTED_TOKEN(tok, IsThatOperation(tok, kOperationBraceClose), );
+    assert(last);
     node->left = if_node;
     node->right = last;
     if_node->parent = node;
@@ -832,7 +843,6 @@ static LangNode_t* GetWhile(Language* lang_info, LangNode_t* func) {
 
     LangNode_t *body = NULL, *last = NULL;
     while (true) {
-        size_t body_pos = *(lang_info->tokens_pos);
         LangNode_t* stmt = GetOp(lang_info, func);
         if (!stmt) break;
 

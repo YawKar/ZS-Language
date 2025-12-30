@@ -1,7 +1,6 @@
 #ifndef TREE_TO_ASM_H_
 #define TREE_TO_ASM_H_
 
-#include "Common/Enums.h"
 #include "Common/Structs.h"
 
 void PrintProgram(

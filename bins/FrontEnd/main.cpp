@@ -87,7 +87,9 @@ int main(int argc, char* argv[]) {
     }
 
     else if (strcmp(mode, "code-asm") == 0) {
-        CHECK_ERROR_RETURN(ReadInfix(&lang_info, &dump_info, filename_in));
+        CHECK_ERROR_RETURN(
+            ReadInfix(&lang_info, &dump_info, filename_in, true)
+        );
 
         FILE_OPEN_AND_CHECK(asm_file, filename_out, "w");
 
@@ -98,7 +100,9 @@ int main(int argc, char* argv[]) {
     }
 
     else if (strcmp(mode, "code-tree") == 0) {
-        CHECK_ERROR_RETURN(ReadInfix(&lang_info, &dump_info, filename_in));
+        CHECK_ERROR_RETURN(
+            ReadInfix(&lang_info, &dump_info, filename_in, true)
+        );
 
         FILE_OPEN_AND_CHECK(ast_file, filename_out, "w");
         PrintAST(root.root, ast_file, &variable_array, 0);

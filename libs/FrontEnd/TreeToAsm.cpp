@@ -14,7 +14,7 @@ int counter = 0;
 int label_if = 0;
 int label_else = 0;
 
-#define PRINT(file, fmt, ...) fprintf(file, fmt "\n", ##__VA_ARGS__)
+#define FPRINT(file, fmt, ...) fprintf(file, fmt "\n", ##__VA_ARGS__)
 static void CleanPositions(VariableArr* arr);
 
 int NewLabel() { return label_counter++; }
@@ -45,23 +45,23 @@ static void FindVarPosPopMN(
             if (arr->var_array[i].pos_in_code == -1) {
                 var_idx = arr->var_array[i].pos_in_code = counter++;
                 // printf("AAAAA%d", arr->var_array[i].pos_in_code);
-                PRINT(file, "PUSHR RAX");
-                PRINT(
+                FPRINT(file, "PUSHR RAX");
+                FPRINT(
                     file,
                     "PUSH %d",
                     (-1) * param_count +
                         arr->var_array[node->value.pos].pos_in_code
                 );
-                PRINT(file, "ADD");
-                PRINT(file, "POPR RCX");
-                PRINT(file, "POPM [RCX]\n");
+                FPRINT(file, "ADD");
+                FPRINT(file, "POPR RCX");
+                FPRINT(file, "POPM [RCX]\n");
             } else {
                 var_idx = arr->var_array[i].pos_in_code;
-                PRINT(file, "PUSHR RAX");
-                PRINT(file, "PUSH %d", (-1) * param_count + var_idx);
-                PRINT(file, "ADD");
-                PRINT(file, "POPR RCX");
-                PRINT(file, "POPM [RCX]\n");
+                FPRINT(file, "PUSHR RAX");
+                FPRINT(file, "PUSH %d", (-1) * param_count + var_idx);
+                FPRINT(file, "ADD");
+                FPRINT(file, "POPR RCX");
+                FPRINT(file, "POPM [RCX]\n");
             }
             break;
         }
@@ -154,14 +154,14 @@ void PrintStatement(
         case kOperation:
             switch (stmt->value.operation) {
                 case kOperationHLT:
-                    PRINT(file, "HLT\n");
+                    FPRINT(file, "HLT\n");
                     break;
 
                 case kOperationCall:
                     PushParamsToStack(
                         file, stmt->right, arr, ram_base, param_count
                     );
-                    PRINT(
+                    FPRINT(
                         file,
                         "CALL :%s\n",
                         arr->var_array[stmt->left->value.pos].variable_name
@@ -178,20 +178,20 @@ void PrintStatement(
 
                 case kOperationReturn:
                     PrintExpr(file, stmt->left, arr, ram_base, param_count);
-                    PRINT(file, "PUSHR RAX");
-                    PRINT(file, "PUSH %d", param_count);
-                    PRINT(file, "SUB");
-                    PRINT(file, "POPR RAX");
-                    PRINT(file, "RET\n");
+                    FPRINT(file, "PUSHR RAX");
+                    FPRINT(file, "PUSH %d", param_count);
+                    FPRINT(file, "SUB");
+                    FPRINT(file, "POPR RAX");
+                    FPRINT(file, "RET\n");
                     break;
 
                 case kOperationWrite:
                     PrintExpr(file, stmt->left, arr, ram_base, param_count);
-                    PRINT(file, "OUT\n");
+                    FPRINT(file, "OUT\n");
                     break;
 
                 case kOperationRead:
-                    PRINT(file, "IN\n");
+                    FPRINT(file, "IN\n");
                     FindVarPosPopMN(
                         file, arr, stmt->left, ram_base, param_count
                     );
@@ -219,7 +219,7 @@ void PrintStatement(
                     int this_if = label_if++;
                     int this_else = label_else++;
 
-                    PRINT(
+                    FPRINT(
                         file,
                         "%s :else_%d",
                         ChooseCompareMode(condition),
@@ -231,15 +231,15 @@ void PrintStatement(
                         PrintStatement(
                             file, stmt->right->left, arr, ram_base, param_count
                         );
-                        PRINT(file, "JMP :end_if_%d", this_if);
+                        FPRINT(file, "JMP :end_if_%d", this_if);
                     } else {
                         PrintStatement(
                             file, stmt->right, arr, ram_base, param_count
                         );
-                        PRINT(file, "JMP :end_if_%d", this_if);
+                        FPRINT(file, "JMP :end_if_%d", this_if);
                     }
 
-                    PRINT(file, ":else_%d", this_else);
+                    FPRINT(file, ":else_%d", this_else);
                     if (stmt->right && stmt->right->type == kOperation &&
                         stmt->right->value.operation == kOperationElse) {
                         PrintStatement(
@@ -247,14 +247,14 @@ void PrintStatement(
                         );
                     }
 
-                    PRINT(file, ":end_if_%d", this_if);
+                    FPRINT(file, ":end_if_%d", this_if);
                 } break;
 
                 case kOperationWhile: {
                     int start_label = NewLabel();
                     int end_label = NewLabel();
 
-                    PRINT(file, ":while_start_%d", start_label);
+                    FPRINT(file, ":while_start_%d", start_label);
 
                     PrintExpr(
                         file, stmt->left->left, arr, ram_base, param_count
@@ -263,7 +263,7 @@ void PrintStatement(
                         file, stmt->left->right, arr, ram_base, param_count
                     );
 
-                    PRINT(
+                    FPRINT(
                         file,
                         "%s :while_end_%d",
                         ChooseCompareMode(stmt->left),
@@ -274,8 +274,8 @@ void PrintStatement(
                         file, stmt->right, arr, ram_base, param_count
                     );
 
-                    PRINT(file, "JMP :while_start_%d", start_label);
-                    PRINT(file, ":while_end_%d", end_label);
+                    FPRINT(file, "JMP :while_start_%d", start_label);
+                    FPRINT(file, ":while_end_%d", end_label);
                 } break;
 
                 default:
@@ -289,7 +289,7 @@ void PrintStatement(
             break;
 
         case kNumber:
-            PRINT(file, "PUSH %.0f", stmt->value.number);
+            FPRINT(file, "PUSH %.0f", stmt->value.number);
             break;
     }
 }
@@ -305,47 +305,47 @@ void PrintExpr(
 
     switch (expr->type) {
         case kNumber:
-            PRINT(file, "PUSH %.0f", expr->value.number);
+            FPRINT(file, "PUSH %.0f", expr->value.number);
             break;
         case kVariable: {
             int var_idx = FindVarPos(arr, expr, ram_base, param_count);
-            PRINT(file, "PUSHR RAX");
-            PRINT(file, "PUSH %d", (-1) * param_count + var_idx);
-            PRINT(file, "ADD");
-            PRINT(file, "POPR RCX");
-            PRINT(file, "PUSHM [RCX]\n");
+            FPRINT(file, "PUSHR RAX");
+            FPRINT(file, "PUSH %d", (-1) * param_count + var_idx);
+            FPRINT(file, "ADD");
+            FPRINT(file, "POPR RCX");
+            FPRINT(file, "PUSHM [RCX]\n");
         } break;
         case kOperation:
             switch (expr->value.operation) {
                 case kOperationSQRT:
                     PrintExpr(file, expr->left, arr, ram_base, param_count);
-                    PRINT(file, "SQRT\n");
+                    FPRINT(file, "SQRT\n");
                     break;
                 case kOperationAdd:
                     PrintExpr(file, expr->left, arr, ram_base, param_count);
                     PrintExpr(file, expr->right, arr, ram_base, param_count);
-                    PRINT(file, "ADD\n");
+                    FPRINT(file, "ADD\n");
                     break;
                 case kOperationSub:
                     PrintExpr(file, expr->left, arr, ram_base, param_count);
                     PrintExpr(file, expr->right, arr, ram_base, param_count);
-                    PRINT(file, "SUB\n");
+                    FPRINT(file, "SUB\n");
                     break;
                 case kOperationMul:
                     PrintExpr(file, expr->left, arr, ram_base, param_count);
                     PrintExpr(file, expr->right, arr, ram_base, param_count);
-                    PRINT(file, "MUL\n");
+                    FPRINT(file, "MUL\n");
                     break;
                 case kOperationDiv:
                     PrintExpr(file, expr->left, arr, ram_base, param_count);
                     PrintExpr(file, expr->right, arr, ram_base, param_count);
-                    PRINT(file, "DIV\n");
+                    FPRINT(file, "DIV\n");
                     break;
                 case kOperationCall:
                     PushParamsToStack(
                         file, expr->right, arr, ram_base, param_count
                     );
-                    PRINT(
+                    FPRINT(
                         file,
                         "CALL :%s\n",
                         arr->var_array[expr->left->value.pos].variable_name
@@ -370,27 +370,27 @@ void PrintFunction(
     if (strcmp(
             MAIN, arr->var_array[func_node->left->value.pos].variable_name
         ) != 0)
-        PRINT(
+        FPRINT(
             file,
             "\n:%s",
             arr->var_array[func_node->left->value.pos].variable_name
         );
     param_count = arr->var_array[func_node->left->value.pos].variable_value;
 
-    PRINT(file, "PUSHR RAX");
-    PRINT(file, "PUSH %d", param_count);
-    PRINT(file, "ADD");
-    PRINT(file, "POPR RAX\n");
+    FPRINT(file, "PUSHR RAX");
+    FPRINT(file, "PUSH %d", param_count);
+    FPRINT(file, "ADD");
+    FPRINT(file, "POPR RAX\n");
 
     PushParamsToRam(file, args, arr, *ram_base, param_count);
 
     (*ram_base) += param_count;
     PrintStatement(file, func_node->right->right, arr, *ram_base, param_count);
 
-    PRINT(file, "PUSHR RAX");
-    PRINT(file, "PUSH %d", param_count);
-    PRINT(file, "SUB");
-    PRINT(file, "POPR RAX\n");
+    FPRINT(file, "PUSHR RAX");
+    FPRINT(file, "PUSH %d", param_count);
+    FPRINT(file, "SUB");
+    FPRINT(file, "POPR RAX\n");
     (*ram_base) -= param_count;
 
     // printf("\n\n");
@@ -401,9 +401,9 @@ void PrintFunction(
     if (strcmp(
             MAIN, arr->var_array[func_node->left->value.pos].variable_name
         ) == 0)
-        PRINT(file, "HLT\n");
+        FPRINT(file, "HLT\n");
     else
-        PRINT(file, "RET\n");
+        FPRINT(file, "RET\n");
 }
 
 static void CleanPositions(VariableArr* arr) {

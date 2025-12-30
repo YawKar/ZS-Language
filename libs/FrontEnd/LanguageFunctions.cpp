@@ -102,7 +102,6 @@ DifErrors ResizeArray(VariableArr* arr) {
     assert(arr);
 
     if (arr->size + 2 > arr->capacity) {
-        size_t old_capacity = arr->capacity;
         arr->capacity += 2;
 
         VariableInfo* new_array =

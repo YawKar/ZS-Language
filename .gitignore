@@ -6,3 +6,6 @@ alldump.html
 
 # clangd's cache
 .cache
+
+# graphviz
+output.txt

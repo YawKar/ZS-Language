@@ -77,7 +77,7 @@ DifErrors StackRealloc(
         stk->capacity = 1;
 
     LangNode_t** new_data = (LangNode_t**)realloc(
-        stk->data, (size_t)stk->capacity * sizeof(LangNode_t*)
+        (void*)stk->data, (size_t)stk->capacity * sizeof(LangNode_t*)
     );
     if (!new_data) return kNoMemory;
 
@@ -89,7 +89,7 @@ DifErrors StackDtor(Stack_Info* stk, FILE* open_log_file) {
     assert(stk);
     assert(open_log_file);
 
-    free(stk->data);
+    free((void*)stk->data);
     stk->data = NULL;
     stk->size = 0;
     stk->capacity = 0;

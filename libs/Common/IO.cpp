@@ -9,7 +9,7 @@
 #include "Enums.h"
 #include "Structs.h"
 
-static long long SizeOfFile(const char* filename) {
+long long SizeOfFile(const char* filename) {
     assert(filename);
 
     struct stat stbuf = {};
@@ -23,7 +23,7 @@ static long long SizeOfFile(const char* filename) {
     return stbuf.st_size;
 }
 
-static char* ReadToBuf(const char* filename, FILE* file, size_t filesize) {
+char* ReadToBuf(const char* filename, FILE* file, size_t filesize) {
     assert(filename);
     assert(file);
 

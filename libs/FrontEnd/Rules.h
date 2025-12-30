@@ -27,6 +27,8 @@
     dump_info.filename_to_write_graphviz = "output.txt";           \
     strcpy(dump_info.message, "Expression tree");
 
-DifErrors ReadInfix(Language* root, DumpInfo* dump_info, const char* filename);
+DifErrors ReadInfix(
+    Language* root, DumpInfo* dump_info, const char* filename, bool do_graphviz
+);
 
 #endif  // RULES_H_

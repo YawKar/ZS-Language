@@ -27,7 +27,6 @@ int main(int argc, char* argv[]) {
 
     INIT_DUMP_INFO(dump_info);
     dump_info.tree = &root;
-    Language lang_info = {&root, NULL, NULL, &Variable_Array};
 
     FILE_OPEN_AND_CHECK(ast_file_read, tree_file, "r");
 

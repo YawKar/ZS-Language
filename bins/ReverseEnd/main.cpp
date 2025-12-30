@@ -9,7 +9,7 @@
 #include "FrontEnd/Rules.h"
 #include "ReverseEnd/TreeToCode.h"
 
-int main(int argc, char* argv[]) {
+int main(int, char* argv[]) {
     char* tree_file = argv[1];
     char* code_file = argv[2];
 

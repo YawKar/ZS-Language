@@ -51,7 +51,8 @@ size_t CheckAndReturn(
     LangRoot* root,
     const char** string,
     Stack_Info* tokens,
-    VariableArr* Variable_Array
+    VariableArr* Variable_Array,
+    bool print_string
 ) {
     assert(root);
     assert(string);
@@ -60,7 +61,9 @@ size_t CheckAndReturn(
 
     size_t cnt = 0;
 
-    printf("%s\n", *string);
+    if (print_string) {
+        printf("%s\n", *string);
+    }
     while (**string != '\0') {
         // printf("DEBUG:::: %d\n", cnt);
         SkipEmptyLines(string);

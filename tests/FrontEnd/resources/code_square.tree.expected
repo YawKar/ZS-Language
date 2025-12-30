@@ -1,0 +1,1029 @@
+( ";"
+	( ";"
+		( ";"
+			( ";"
+				( ";"
+					( ";"
+						( ";"
+							( ";"
+								( ";"
+									nil
+
+									( "func"
+										( "adepio_maximus"
+											nil
+
+											nil
+										)
+
+										( ";"
+											nil
+
+											( ";"
+												( ";"
+													( ";"
+														( ";"
+															( ";"
+																( ";"
+																	( ";"
+																		( ";"
+																			( ";"
+																				( "="
+																					( "a"
+																						nil
+
+																						nil
+																					)
+
+																					( "0"
+																						nil
+
+																						nil
+																					)
+																				)
+
+																				nil
+																			)
+
+																			( ";"
+																				( "="
+																					( "b"
+																						nil
+
+																						nil
+																					)
+
+																					( "0"
+																						nil
+
+																						nil
+																					)
+																				)
+
+																				nil
+																			)
+																		)
+
+																		( ";"
+																			( "="
+																				( "c"
+																					nil
+
+																					nil
+																				)
+
+																				( "0"
+																					nil
+
+																					nil
+																				)
+																			)
+
+																			nil
+																		)
+																	)
+
+																	( "scanf"
+																		( "a"
+																			nil
+
+																			nil
+																		)
+
+																		nil
+																	)
+																)
+
+																( "scanf"
+																	( "b"
+																		nil
+
+																		nil
+																	)
+
+																	nil
+																)
+															)
+
+															( "scanf"
+																( "c"
+																	nil
+
+																	nil
+																)
+
+																nil
+															)
+														)
+
+														( ";"
+															( "call"
+																( "nulla"
+																	nil
+
+																	nil
+																)
+
+																( ","
+																	( "a"
+																		nil
+
+																		nil
+																	)
+
+																	( ","
+																		( "b"
+																			nil
+
+																			nil
+																		)
+
+																		( "c"
+																			nil
+
+																			nil
+																		)
+																	)
+																)
+															)
+
+															nil
+														)
+													)
+
+													( ";"
+														( ";"
+															( "="
+																( "d"
+																	nil
+
+																	nil
+																)
+
+																( "call"
+																	( "discriminant"
+																		nil
+
+																		nil
+																	)
+
+																	( ","
+																		( "a"
+																			nil
+
+																			nil
+																		)
+
+																		( ","
+																			( "b"
+																				nil
+
+																				nil
+																			)
+
+																			( "c"
+																				nil
+
+																				nil
+																			)
+																		)
+																	)
+																)
+															)
+
+															nil
+														)
+
+														( ";"
+															( "call"
+																( "findroot1"
+																	nil
+
+																	nil
+																)
+
+																( ","
+																	( "a"
+																		nil
+
+																		nil
+																	)
+
+																	( ","
+																		( "b"
+																			nil
+
+																			nil
+																		)
+
+																		( "d"
+																			nil
+
+																			nil
+																		)
+																	)
+																)
+															)
+
+															nil
+														)
+													)
+												)
+
+												( "if"
+													( "!="
+														( "d"
+															nil
+
+															nil
+														)
+
+														( "0"
+															nil
+
+															nil
+														)
+													)
+
+													( ";"
+														( "call"
+															( "findroot2"
+																nil
+
+																nil
+															)
+
+															( ","
+																( "a"
+																	nil
+
+																	nil
+																)
+
+																( ","
+																	( "b"
+																		nil
+
+																		nil
+																	)
+
+																	( "d"
+																		nil
+
+																		nil
+																	)
+																)
+															)
+														)
+
+														nil
+													)
+												)
+											)
+										)
+									)
+								)
+
+								( "func"
+									( "nulla"
+										nil
+
+										nil
+									)
+
+									( ";"
+										( ","
+											( "a"
+												nil
+
+												nil
+											)
+
+											( ","
+												( "b"
+													nil
+
+													nil
+												)
+
+												( "c"
+													nil
+
+													nil
+												)
+											)
+										)
+
+										( "if"
+											( "=="
+												( "a"
+													nil
+
+													nil
+												)
+
+												( "0"
+													nil
+
+													nil
+												)
+											)
+
+											( ";"
+												( "call"
+													( "dolinear"
+														nil
+
+														nil
+													)
+
+													( ","
+														( "b"
+															nil
+
+															nil
+														)
+
+														( "c"
+															nil
+
+															nil
+														)
+													)
+												)
+
+												nil
+											)
+										)
+									)
+								)
+							)
+
+							( "func"
+								( "discriminant"
+									nil
+
+									nil
+								)
+
+								( ";"
+									( ","
+										( "a"
+											nil
+
+											nil
+										)
+
+										( ","
+											( "b"
+												nil
+
+												nil
+											)
+
+											( "c"
+												nil
+
+												nil
+											)
+										)
+									)
+
+									( ";"
+										( ";"
+											( ";"
+												( ";"
+													( "="
+														( "d"
+															nil
+
+															nil
+														)
+
+														( "-"
+															( "*"
+																( "b"
+																	nil
+
+																	nil
+																)
+
+																( "b"
+																	nil
+
+																	nil
+																)
+															)
+
+															( "*"
+																( "4"
+																	nil
+
+																	nil
+																)
+
+																( "*"
+																	( "a"
+																		nil
+
+																		nil
+																	)
+
+																	( "c"
+																		nil
+
+																		nil
+																	)
+																)
+															)
+														)
+													)
+
+													nil
+												)
+
+												( ";"
+													( "call"
+														( "checkdis"
+															nil
+
+															nil
+														)
+
+														( "d"
+															nil
+
+															nil
+														)
+													)
+
+													nil
+												)
+											)
+
+											( ";"
+												( "="
+													( "d"
+														nil
+
+														nil
+													)
+
+													( "sqrt"
+														( "d"
+															nil
+
+															nil
+														)
+
+														nil
+													)
+												)
+
+												nil
+											)
+										)
+
+										( "return"
+											( "d"
+												nil
+
+												nil
+											)
+
+											nil
+										)
+									)
+								)
+							)
+						)
+
+						( "func"
+							( "findroot1"
+								nil
+
+								nil
+							)
+
+							( ";"
+								( ","
+									( "a"
+										nil
+
+										nil
+									)
+
+									( ","
+										( "b"
+											nil
+
+											nil
+										)
+
+										( "d"
+											nil
+
+											nil
+										)
+									)
+								)
+
+								( ";"
+									( ";"
+										( "="
+											( "root1"
+												nil
+
+												nil
+											)
+
+											( "/"
+												( "+"
+													( "*"
+														( "-1"
+															nil
+
+															nil
+														)
+
+														( "b"
+															nil
+
+															nil
+														)
+													)
+
+													( "d"
+														nil
+
+														nil
+													)
+												)
+
+												( "*"
+													( "2"
+														nil
+
+														nil
+													)
+
+													( "a"
+														nil
+
+														nil
+													)
+												)
+											)
+										)
+
+										nil
+									)
+
+									( "print"
+										( "root1"
+											nil
+
+											nil
+										)
+
+										nil
+									)
+								)
+							)
+						)
+					)
+
+					( "func"
+						( "findroot2"
+							nil
+
+							nil
+						)
+
+						( ";"
+							( ","
+								( "a"
+									nil
+
+									nil
+								)
+
+								( ","
+									( "b"
+										nil
+
+										nil
+									)
+
+									( "d"
+										nil
+
+										nil
+									)
+								)
+							)
+
+							( ";"
+								( ";"
+									( "="
+										( "root2"
+											nil
+
+											nil
+										)
+
+										( "/"
+											( "-"
+												( "*"
+													( "-1"
+														nil
+
+														nil
+													)
+
+													( "b"
+														nil
+
+														nil
+													)
+												)
+
+												( "d"
+													nil
+
+													nil
+												)
+											)
+
+											( "*"
+												( "2"
+													nil
+
+													nil
+												)
+
+												( "a"
+													nil
+
+													nil
+												)
+											)
+										)
+									)
+
+									nil
+								)
+
+								( "print"
+									( "root2"
+										nil
+
+										nil
+									)
+
+									nil
+								)
+							)
+						)
+					)
+				)
+
+				( "func"
+					( "checkdis"
+						nil
+
+						nil
+					)
+
+					( ";"
+						( "d"
+							nil
+
+							nil
+						)
+
+						( "if"
+							( "<"
+								( "d"
+									nil
+
+									nil
+								)
+
+								( "0"
+									nil
+
+									nil
+								)
+							)
+
+							( "else"
+								( ";"
+									( "print"
+										( "0"
+											nil
+
+											nil
+										)
+
+										nil
+									)
+
+									( ";"
+										( "call"
+											( "doout"
+												nil
+
+												nil
+											)
+
+											nil
+										)
+
+										nil
+									)
+								)
+
+								( "if"
+									( "=="
+										( "d"
+											nil
+
+											nil
+										)
+
+										( "0"
+											nil
+
+											nil
+										)
+									)
+
+									( "else"
+										( "print"
+											( "1"
+												nil
+
+												nil
+											)
+
+											nil
+										)
+
+										( "print"
+											( "2"
+												nil
+
+												nil
+											)
+
+											nil
+										)
+									)
+								)
+							)
+						)
+					)
+				)
+			)
+
+			( "func"
+				( "dolinear"
+					nil
+
+					nil
+				)
+
+				( ";"
+					( ","
+						( "b"
+							nil
+
+							nil
+						)
+
+						( "c"
+							nil
+
+							nil
+						)
+					)
+
+					( "if"
+						( "=="
+							( "b"
+								nil
+
+								nil
+							)
+
+							( "0"
+								nil
+
+								nil
+							)
+						)
+
+						( "else"
+							( ";"
+								( "call"
+									( "checkc"
+										nil
+
+										nil
+									)
+
+									( "c"
+										nil
+
+										nil
+									)
+								)
+
+								nil
+							)
+
+							( ";"
+								( ";"
+									( ";"
+										( "print"
+											( "1"
+												nil
+
+												nil
+											)
+
+											nil
+										)
+
+										( ";"
+											( "="
+												( "x"
+													nil
+
+													nil
+												)
+
+												( "/"
+													( "*"
+														( "-1"
+															nil
+
+															nil
+														)
+
+														( "c"
+															nil
+
+															nil
+														)
+													)
+
+													( "b"
+														nil
+
+														nil
+													)
+												)
+											)
+
+											nil
+										)
+									)
+
+									( "print"
+										( "x"
+											nil
+
+											nil
+										)
+
+										nil
+									)
+								)
+
+								( ";"
+									( "call"
+										( "doout"
+											nil
+
+											nil
+										)
+
+										nil
+									)
+
+									nil
+								)
+							)
+						)
+					)
+				)
+			)
+		)
+
+		( "func"
+			( "checkc"
+				nil
+
+				nil
+			)
+
+			( ";"
+				( "c"
+					nil
+
+					nil
+				)
+
+				( "if"
+					( "=="
+						( "c"
+							nil
+
+							nil
+						)
+
+						( "0"
+							nil
+
+							nil
+						)
+					)
+
+					( "else"
+						( ";"
+							( "print"
+								( "12345678"
+									nil
+
+									nil
+								)
+
+								nil
+							)
+
+							( ";"
+								( "call"
+									( "doout"
+										nil
+
+										nil
+									)
+
+									nil
+								)
+
+								nil
+							)
+						)
+
+						( ";"
+							( "print"
+								( "0"
+									nil
+
+									nil
+								)
+
+								nil
+							)
+
+							( ";"
+								( "call"
+									( "doout"
+										nil
+
+										nil
+									)
+
+									nil
+								)
+
+								nil
+							)
+						)
+					)
+				)
+			)
+		)
+	)
+
+	( "func"
+		( "doout"
+			nil
+
+			nil
+		)
+
+		( ";"
+			nil
+
+			( "exit"
+				nil
+
+				nil
+			)
+		)
+	)
+)

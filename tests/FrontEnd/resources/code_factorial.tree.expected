@@ -1,0 +1,173 @@
+( ";"
+	( ";"
+		nil
+
+		( "func"
+			( "adepio_maximus"
+				nil
+
+				nil
+			)
+
+			( ";"
+				nil
+
+				( ";"
+					( ";"
+						( ";"
+							( ";"
+								( "="
+									( "n"
+										nil
+
+										nil
+									)
+
+									( "0"
+										nil
+
+										nil
+									)
+								)
+
+								nil
+							)
+
+							( "scanf"
+								( "n"
+									nil
+
+									nil
+								)
+
+								nil
+							)
+						)
+
+						( ";"
+							( "="
+								( "result"
+									nil
+
+									nil
+								)
+
+								( "call"
+									( "countfact"
+										nil
+
+										nil
+									)
+
+									( "n"
+										nil
+
+										nil
+									)
+								)
+							)
+
+							nil
+						)
+					)
+
+					( "print"
+						( "result"
+							nil
+
+							nil
+						)
+
+						nil
+					)
+				)
+			)
+		)
+	)
+
+	( "func"
+		( "countfact"
+			nil
+
+			nil
+		)
+
+		( ";"
+			( "n"
+				nil
+
+				nil
+			)
+
+			( "if"
+				( "<="
+					( "-"
+						( "n"
+							nil
+
+							nil
+						)
+
+						( "1"
+							nil
+
+							nil
+						)
+					)
+
+					( "0"
+						nil
+
+						nil
+					)
+				)
+
+				( "else"
+					( "return"
+						( "1"
+							nil
+
+							nil
+						)
+
+						nil
+					)
+
+					( "return"
+						( "*"
+							( "n"
+								nil
+
+								nil
+							)
+
+							( "call"
+								( "countfact"
+									nil
+
+									nil
+								)
+
+								( "-"
+									( "n"
+										nil
+
+										nil
+									)
+
+									( "1"
+										nil
+
+										nil
+									)
+								)
+							)
+						)
+
+						nil
+					)
+				)
+			)
+		)
+	)
+)

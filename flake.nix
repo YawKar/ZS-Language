@@ -29,6 +29,7 @@
               pkg-config
               nixfmt-rfc-style
               gnumake
+              graphviz
             ] ++ [
               gccToolchain
               llvmClangToolchain

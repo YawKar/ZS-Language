@@ -51,7 +51,10 @@ fmt:
 	@find bins libs tests -type f -name "*.c" -o -name "*.cpp" -o -name "*.h" -o -name "*.hpp" | xargs clang-format --Werror $(FMT_CLANG_FORMAT)
 
 lint: $(BUILD_DIR)/compile_commands.json
-	@run-clang-tidy -quiet -p $(BUILD_DIR) bins libs
+	@run-clang-tidy -quiet -p $(BUILD_DIR) bins libs tests
+
+lint-fix: $(BUILD_DIR)/compile_commands.json
+	@run-clang-tidy -quiet -fix -p $(BUILD_DIR) bins libs tests
 
 # For CI, checking without changing files
 check: FMT_MESON = --check-only
@@ -64,6 +67,7 @@ list:
 	@echo "  (front|middle|reverse|tests)[-run]   - Build component [and run it]"
 	@echo "  fmt                                  - Format code using clang-format"
 	@echo "  lint                                 - Lint code using clang-tidy"
+	@echo "  lint-fix                             - Lint code using clang-tidy and auto-fix some errors"
 	@echo "  rebuild                              - Wipe and regenerate build directory"
 	@echo "  clean                                - Delete build directory"
 

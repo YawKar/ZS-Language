@@ -4,6 +4,8 @@ Checks: >
   -*, # conservatively disabling plenty of useful checks
 
   bugprone-*,
+  -bugprone-easily-swappable-parameters,
+
   clang-analyzer-*,
   misc-include-cleaner,
   misc-header-include-cycle,

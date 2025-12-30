@@ -171,6 +171,7 @@ static void ComputeFuncSizes(LangNode_t* node, VariableArr* arr) {
 static DifErrors CheckType(Lang_t title, LangNode_t* node, VariableArr* arr) {
     assert(node);
     assert(arr);
+    assert(title);
 
     for (size_t i = 0; i < OP_TABLE_SIZE; i++) {
         if (strcmp(OP_TABLE[i].name, title) == 0) {
@@ -498,23 +499,16 @@ static int GetOpPrecedence(OperationTypes op) {
         case kOperationPow:
             return 4;
         case kOperationMul:
-            return 3;
         case kOperationDiv:
             return 3;
         case kOperationAdd:
-            return 2;
         case kOperationSub:
             return 2;
         case kOperationB:
-            return 1;
         case kOperationBE:
-            return 1;
         case kOperationA:
-            return 1;
         case kOperationAE:
-            return 1;
         case kOperationE:
-            return 1;
         case kOperationNE:
             return 1;
         default:

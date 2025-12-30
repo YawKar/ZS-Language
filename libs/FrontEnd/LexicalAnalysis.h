@@ -8,7 +8,8 @@ size_t CheckAndReturn(
     LangRoot* root,
     const char** string,
     Stack_Info* tokens,
-    VariableArr* Variable_Array
+    VariableArr* Variable_Array,
+    bool print_string
 );
 
 #endif  // LEXICAL_ANALYSIS_H_

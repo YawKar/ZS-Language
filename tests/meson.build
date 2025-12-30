@@ -12,5 +12,3 @@ tests_exe = executable(
     ],
     include_directories: [libs_include],
 )
-
-test('tests', tests_exe)
