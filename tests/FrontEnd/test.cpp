@@ -38,6 +38,7 @@ TEST_CASE("Testing conversion from code to tree and asm") {
                 filename_input, "%s%s", RESOURCES_DIR, test_cases[test_case_ix]
             );
 
+            TreeToAsmReinitGlobals();
             SUBCASE("conversion to tree") {
                 LangRoot root = {};
                 LangRootCtor(&root);
@@ -88,6 +89,7 @@ TEST_CASE("Testing conversion from code to tree and asm") {
                 REQUIRE(actual_tree_printed == expected);
             }
 
+            TreeToAsmReinitGlobals();
             SUBCASE("conversion to asm") {
                 LangRoot root = {};
                 LangRootCtor(&root);

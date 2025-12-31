@@ -7,4 +7,6 @@ void PrintProgram(
     FILE* file, LangNode_t* root, VariableArr* arr, int* ram_base
 );
 
+void TreeToAsmReinitGlobals();
+
 #endif  // TREE_TO_ASM_H_

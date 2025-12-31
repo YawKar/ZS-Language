@@ -17,6 +17,13 @@ int label_else = 0;
 #define FPRINT(file, fmt, ...) fprintf(file, fmt "\n", ##__VA_ARGS__)
 static void CleanPositions(VariableArr* arr);
 
+void TreeToAsmReinitGlobals() {
+    label_counter = 0;
+    counter = 0;
+    label_if = 0;
+    label_else = 0;
+}
+
 int NewLabel() { return label_counter++; }
 
 static const char* ChooseCompareMode(LangNode_t* node);
