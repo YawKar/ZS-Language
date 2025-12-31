@@ -4,7 +4,11 @@
 #include "Common/Structs.h"
 
 void PrintProgram(
-    FILE* file, LangNode_t* root, VariableArr* arr, int* ram_base
+    FILE* file,
+    LangNode_t* root,
+    VariableArr* arr,
+    int* ram_base,
+    AsmInfo* asm_info
 );
 
 void TreeToAsmReinitGlobals();

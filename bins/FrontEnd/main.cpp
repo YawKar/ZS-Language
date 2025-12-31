@@ -81,7 +81,10 @@ int main(int argc, char* argv[]) {
         FILE_OPEN_AND_CHECK(asm_file, filename_out, "w");
 
         int ram_base = 0;
-        PrintProgram(asm_file, parsed_root.root, &variable_array, &ram_base);
+        AsmInfo asm_info = {};
+        PrintProgram(
+            asm_file, parsed_root.root, &variable_array, &ram_base, &asm_info
+        );
 
         fclose(asm_file);
     }
@@ -94,7 +97,10 @@ int main(int argc, char* argv[]) {
         FILE_OPEN_AND_CHECK(asm_file, filename_out, "w");
 
         int ram_base = 0;
-        PrintProgram(asm_file, root.root, &variable_array, &ram_base);
+        AsmInfo asm_info = {};
+        PrintProgram(
+            asm_file, root.root, &variable_array, &ram_base, &asm_info
+        );
 
         fclose(asm_file);
     }
