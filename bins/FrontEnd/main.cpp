@@ -7,9 +7,9 @@
 #include "Common/IO.h"
 #include "Common/Structs.h"
 #include "FrontEnd/LanguageFunctions.h"
+#include "FrontEnd/ReadTree.h"
 #include "FrontEnd/Rules.h"
 #include "FrontEnd/TreeToAsm.h"
-#include "ReverseEnd/TreeToCode.h"
 
 int main(int argc, char* argv[]) {
     // TODO square to asm segfault

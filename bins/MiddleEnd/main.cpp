@@ -6,9 +6,9 @@
 #include "Common/IO.h"
 #include "Common/Structs.h"
 #include "FrontEnd/LanguageFunctions.h"
+#include "FrontEnd/ReadTree.h"
 #include "FrontEnd/Rules.h"
 #include "MiddleEnd/Optimise.h"
-#include "ReverseEnd/TreeToCode.h"
 
 int main(int argc, char* argv[]) {
     if (argc < 2) {
