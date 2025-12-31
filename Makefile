@@ -23,6 +23,10 @@ $(eval $(call GENERATE_TARGET_BUILD_AND_RUN,reverse,$(BUILD_DIR)/bins/ReverseEnd
 $(eval $(call GENERATE_TARGET_BUILD_AND_RUN,tests,$(BUILD_DIR)/tests/tests_exe))
 all: front middle reverse tests
 
+# because there are a lot of sanitizer errors out there :D
+tests-run-ignore-sanitizer-output:
+	$(MAKE) tests-run 2>/dev/null
+
 #### Build management
 clean:
 	@meson compile -C $(BUILD_DIR) --clean 2>/dev/null || rm -rf $(BUILD_DIR)
