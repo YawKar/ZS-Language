@@ -335,7 +335,9 @@ static LangNode_t* CheckNodeAndConstOptimise(
 
     if (node && !IsNumber(node)) {
         node = ConstOptimise(root, node, has_change, arr);
-        if (!node) return NULL;
+        if (!node) {
+            return NULL;
+        }
     }
     return node;
 }

@@ -111,7 +111,9 @@ void PushParamsToStack(
     int ram_base,
     int param_count
 ) {
-    if (!args_node) return;
+    if (!args_node) {
+        return;
+    }
 
     if (!(args_node->type == kOperation &&
           args_node->value.operation == kOperationComma)) {
@@ -119,10 +121,12 @@ void PushParamsToStack(
         return;
     }
 
-    if (args_node->left)
+    if (args_node->left) {
         PushParamsToStack(file, args_node->right, arr, ram_base, param_count);
-    if (args_node->right)
+    }
+    if (args_node->right) {
         PushParamsToStack(file, args_node->left, arr, ram_base, param_count);
+    }
 }
 
 void PushParamsToRam(
@@ -134,7 +138,9 @@ void PushParamsToRam(
 ) {
     assert(file);
     assert(arr);
-    if (!args_node) return;
+    if (!args_node) {
+        return;
+    }
 
     if (!(args_node->type == kOperation &&
           args_node->value.operation == kOperationComma)) {
@@ -142,10 +148,12 @@ void PushParamsToRam(
         return;
     }
 
-    if (args_node->left)
+    if (args_node->left) {
         PushParamsToRam(file, args_node->left, arr, ram_base, param_count);
-    if (args_node->right)
+    }
+    if (args_node->right) {
         PushParamsToRam(file, args_node->right, arr, ram_base, param_count);
+    }
 }
 
 void PrintStatement(
@@ -155,7 +163,9 @@ void PrintStatement(
     int ram_base,
     int param_count
 ) {
-    if (!stmt) return;
+    if (!stmt) {
+        return;
+    }
 
     switch (stmt->type) {
         case kOperation:
@@ -308,7 +318,9 @@ void PrintExpr(
     int ram_base,
     int param_count
 ) {
-    if (!expr) return;
+    if (!expr) {
+        return;
+    }
 
     switch (expr->type) {
         case kNumber:
@@ -366,7 +378,9 @@ void PrintExpr(
 void PrintFunction(
     FILE* file, LangNode_t* func_node, VariableArr* arr, int* ram_base
 ) {
-    if (!func_node) return;
+    if (!func_node) {
+        return;
+    }
 
     int param_count = 0;
     CleanPositions(arr);
@@ -376,12 +390,13 @@ void PrintFunction(
 
     if (strcmp(
             MAIN, arr->var_array[func_node->left->value.pos].variable_name
-        ) != 0)
+        ) != 0) {
         FPRINT(
             file,
             "\n:%s",
             arr->var_array[func_node->left->value.pos].variable_name
         );
+    }
     param_count = arr->var_array[func_node->left->value.pos].variable_value;
 
     FPRINT(file, "PUSHR RAX");
@@ -407,32 +422,45 @@ void PrintFunction(
     // }
     if (strcmp(
             MAIN, arr->var_array[func_node->left->value.pos].variable_name
-        ) == 0)
+        ) == 0) {
         FPRINT(file, "HLT\n");
-    else
+    } else {
         FPRINT(file, "RET\n");
+    }
 }
 
 static void CleanPositions(VariableArr* arr) {
-    for (size_t i = 0; i < arr->size; i++) arr->var_array[i].pos_in_code = -1;
+    for (size_t i = 0; i < arr->size; i++) {
+        arr->var_array[i].pos_in_code = -1;
+    }
 }
 
 void PrintProgram(
     FILE* file, LangNode_t* root, VariableArr* arr, int* ram_base
 ) {
-    if (!root) return;
+    if (!root) {
+        return;
+    }
 
     counter = 0;
 
-    if (root->type == kOperation && root->value.operation == kOperationFunction)
+    if (root->type == kOperation &&
+        root->value.operation == kOperationFunction) {
         PrintFunction(file, root, arr, ram_base);
+    }
 
-    if (root->left) PrintProgram(file, root->left, arr, ram_base);
-    if (root->right) PrintProgram(file, root->right, arr, ram_base);
+    if (root->left) {
+        PrintProgram(file, root->left, arr, ram_base);
+    }
+    if (root->right) {
+        PrintProgram(file, root->right, arr, ram_base);
+    }
 }
 
 static const char* ChooseCompareMode(LangNode_t* node) {
-    if (!node || node->type != kOperation) return "NULL";
+    if (!node || node->type != kOperation) {
+        return "NULL";
+    }
 
     switch (node->value.operation) {
         case kOperationA:

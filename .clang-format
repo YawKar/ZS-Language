@@ -1,6 +1,7 @@
 ---
 BasedOnStyle: Google
 IndentWidth: 4
+InsertBraces: true
 UseTab: Never
 BinPackArguments: false
 BinPackParameters: false

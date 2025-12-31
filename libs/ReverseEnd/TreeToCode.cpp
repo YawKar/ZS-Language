@@ -34,7 +34,9 @@ static bool IsThatOperation(LangNode_t* node, OperationTypes type) {
 static void PrintIndent(FILE* out, int indent) {
     assert(out);
 
-    for (int i = 0; i < indent; ++i) fputc('\t', out);
+    for (int i = 0; i < indent; ++i) {
+        fputc('\t', out);
+    }
 }
 
 void GenerateCodeFromAST(
@@ -42,7 +44,9 @@ void GenerateCodeFromAST(
 ) {
     assert(out);
     assert(arr);
-    if (!node) return;
+    if (!node) {
+        return;
+    }
 
     if (node->type == kOperation) {
         switch (node->value.operation) {
@@ -68,7 +72,9 @@ void GenerateCodeFromAST(
             case kOperationReturn:
                 PrintIndent(out, indent);
                 fprintf(out, "%s ", PrintCodeNameFromTable(kOperationReturn));
-                if (node->left) GenExpr(node->left, out, arr);
+                if (node->left) {
+                    GenExpr(node->left, out, arr);
+                }
 
                 fprintf(out, "%s\n", PrintCodeNameFromTable(kOperationThen));
                 return;
@@ -282,7 +288,9 @@ static int GetOpPrecedence(OperationTypes op) {
 }
 
 static void GenExpr(LangNode_t* node, FILE* out, VariableArr* arr) {
-    if (!node) return;
+    if (!node) {
+        return;
+    }
     assert(out);
     assert(arr);
 
@@ -310,16 +318,17 @@ static void GenExpr(LangNode_t* node, FILE* out, VariableArr* arr) {
         case kOperationDiv:
         case kOperationPow: {
             const char* op = "?";
-            if (node->value.operation == kOperationAdd)
+            if (node->value.operation == kOperationAdd) {
                 op = PrintCodeNameFromTable(kOperationAdd);
-            else if (node->value.operation == kOperationSub)
+            } else if (node->value.operation == kOperationSub) {
                 op = PrintCodeNameFromTable(kOperationSub);
-            else if (node->value.operation == kOperationMul)
+            } else if (node->value.operation == kOperationMul) {
                 op = PrintCodeNameFromTable(kOperationMul);
-            else if (node->value.operation == kOperationDiv)
+            } else if (node->value.operation == kOperationDiv) {
                 op = PrintCodeNameFromTable(kOperationDiv);
-            else if (node->value.operation == kOperationPow)
+            } else if (node->value.operation == kOperationPow) {
                 op = PrintCodeNameFromTable(kOperationPow);
+            }
 
             if (node->left && node->left->type == kOperation &&
                 GetOpPrecedence(node->left->value.operation) <
@@ -343,18 +352,19 @@ static void GenExpr(LangNode_t* node, FILE* out, VariableArr* arr) {
         case kOperationE:
         case kOperationNE: {
             const char* op = "?";
-            if (node->value.operation == kOperationB)
+            if (node->value.operation == kOperationB) {
                 op = PrintCodeNameFromTable(kOperationB);
-            else if (node->value.operation == kOperationBE)
+            } else if (node->value.operation == kOperationBE) {
                 op = PrintCodeNameFromTable(kOperationBE);
-            else if (node->value.operation == kOperationA)
+            } else if (node->value.operation == kOperationA) {
                 op = PrintCodeNameFromTable(kOperationA);
-            else if (node->value.operation == kOperationAE)
+            } else if (node->value.operation == kOperationAE) {
                 op = PrintCodeNameFromTable(kOperationAE);
-            else if (node->value.operation == kOperationE)
+            } else if (node->value.operation == kOperationE) {
                 op = PrintCodeNameFromTable(kOperationE);
-            else if (node->value.operation == kOperationNE)
+            } else if (node->value.operation == kOperationNE) {
                 op = PrintCodeNameFromTable(kOperationNE);
+            }
             // fprintf(out, "(");
             GenExpr(node->left, out, arr);
             fprintf(out, " %s ", op);
@@ -372,7 +382,9 @@ static void GenExpr(LangNode_t* node, FILE* out, VariableArr* arr) {
         case kOperationCall:  //
             GenExpr(node->left, out, arr);
             fprintf(out, "(");
-            if (node->right) GenExpr(node->right, out, arr);
+            if (node->right) {
+                GenExpr(node->right, out, arr);
+            }
             fprintf(out, ")");
             return;
 
@@ -400,24 +412,25 @@ static void GenExpr(LangNode_t* node, FILE* out, VariableArr* arr) {
         case kOperationTgh:
         case kOperationSQRT: {
             const char* name = "func";
-            if (node->value.operation == kOperationSin)
+            if (node->value.operation == kOperationSin) {
                 name = PrintCodeNameFromTable(kOperationSin);
-            else if (node->value.operation == kOperationCos)
+            } else if (node->value.operation == kOperationCos) {
                 name = PrintCodeNameFromTable(kOperationCos);
-            else if (node->value.operation == kOperationTg)
+            } else if (node->value.operation == kOperationTg) {
                 name = PrintCodeNameFromTable(kOperationTg);
-            else if (node->value.operation == kOperationLn)
+            } else if (node->value.operation == kOperationLn) {
                 name = PrintCodeNameFromTable(kOperationLn);
-            else if (node->value.operation == kOperationArctg)
+            } else if (node->value.operation == kOperationArctg) {
                 name = PrintCodeNameFromTable(kOperationArctg);
-            else if (node->value.operation == kOperationSinh)
+            } else if (node->value.operation == kOperationSinh) {
                 name = PrintCodeNameFromTable(kOperationSinh);
-            else if (node->value.operation == kOperationCosh)
+            } else if (node->value.operation == kOperationCosh) {
                 name = PrintCodeNameFromTable(kOperationCosh);
-            else if (node->value.operation == kOperationTgh)
+            } else if (node->value.operation == kOperationTgh) {
                 name = PrintCodeNameFromTable(kOperationTgh);
-            else if (node->value.operation == kOperationSQRT)
+            } else if (node->value.operation == kOperationSQRT) {
                 name = PrintCodeNameFromTable(kOperationSQRT);
+            }
             fprintf(out, "%s(", name);
             GenExpr(node->left, out, arr);
             fprintf(out, ")");

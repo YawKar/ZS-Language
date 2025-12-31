@@ -6,7 +6,10 @@ Checks: >
   bugprone-*,
   -bugprone-easily-swappable-parameters,
 
+  readability-braces-around-statements,
+
   clang-analyzer-*,
+
   misc-include-cleaner,
   misc-header-include-cycle,
   misc-misplaced-const,

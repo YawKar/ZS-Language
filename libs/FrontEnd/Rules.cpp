@@ -153,9 +153,9 @@ static LangNode_t* GetGoal(Language* lang_info) {  // why hlt is called function
     LangNode_t* first = NULL;
     do {
         LangNode_t* next = GetFunctionDeclare(lang_info);
-        if (!next)
+        if (!next) {
             break;
-        else if (first && !first->right) {
+        } else if (first && !first->right) {
             first->right = next;
         } else {
             first = NEWOP(kOperationThen, first, next);
@@ -501,7 +501,9 @@ static LangNode_t* GetExpression(Language* lang_info) {
     assert(lang_info);
 
     LangNode_t* val = GetTerm(lang_info);
-    if (!val) return NULL;
+    if (!val) {
+        return NULL;
+    }
 
     lang_info->root->size++;
     LangNode_t* node =
@@ -512,7 +514,9 @@ static LangNode_t* GetExpression(Language* lang_info) {
         (*lang_info->tokens_pos)++;
 
         LangNode_t* val2 = GetTerm(lang_info);
-        if (!val2) return val;
+        if (!val2) {
+            return val;
+        }
 
         lang_info->root->size++;
         node->left = val;
@@ -531,7 +535,9 @@ static LangNode_t* GetTerm(Language* lang_info) {
     assert(lang_info);
 
     LangNode_t* left = GetPower(lang_info);
-    if (!left) return NULL;
+    if (!left) {
+        return NULL;
+    }
 
     lang_info->root->size++;
     LangNode_t* node =
@@ -542,7 +548,9 @@ static LangNode_t* GetTerm(Language* lang_info) {
         (*lang_info->tokens_pos)++;
 
         LangNode_t* right = GetTerm(lang_info);
-        if (!right) return left;
+        if (!right) {
+            return left;
+        }
 
         node->left = left;
         node->right = right;
@@ -754,7 +762,9 @@ static LangNode_t* GetIf(Language* lang_info, LangNode_t* func) {
 
     while (true) {
         LangNode_t* stmt = GetOp(lang_info, func);
-        if (!stmt) break;
+        if (!stmt) {
+            break;
+        }
 
         last = NEWOP(kOperationThen, last, stmt);
     }
@@ -790,11 +800,13 @@ static LangNode_t* GetElse(
 
     while (true) {
         LangNode_t* stmt = GetOp(lang_info, func);
-        if (!stmt) break;
+        if (!stmt) {
+            break;
+        }
 
-        if (last)
+        if (last) {
             last = NEWOP(kOperationThen, last, stmt);
-        else {
+        } else {
             last = stmt;
         }
     }
@@ -844,7 +856,9 @@ static LangNode_t* GetWhile(Language* lang_info, LangNode_t* func) {
     LangNode_t *body = NULL, *last = NULL;
     while (true) {
         LangNode_t* stmt = GetOp(lang_info, func);
-        if (!stmt) break;
+        if (!stmt) {
+            break;
+        }
 
         if (!body) {
             body = stmt;
@@ -941,8 +955,9 @@ static LangNode_t* ParseFunctionArgs(Language* lang_info, size_t* cnt) {
         LangNode_t* token =
             GetStackElem(lang_info->tokens, *(lang_info->tokens_pos));
         if (!token || IsThatOperation(token, kOperationParClose)) {
-            if (IsThatOperation(token, kOperationParClose))
+            if (IsThatOperation(token, kOperationParClose)) {
                 (*(lang_info->tokens_pos))++;
+            }
             break;
         }
 

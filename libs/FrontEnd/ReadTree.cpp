@@ -86,7 +86,9 @@ DifErrors ParseNodeFromString(
 
 static void ComputeFuncSizes(LangNode_t* node, VariableArr* arr) {
     assert(arr);
-    if (!node) return;
+    if (!node) {
+        return;
+    }
 
     ComputeFuncSizes(node->left, arr);
     ComputeFuncSizes(node->right, arr);
@@ -116,7 +118,6 @@ static DifErrors CheckType(Lang_t title, LangNode_t* node, VariableArr* arr) {
             return kSuccess;
         }
     }
-    // printf("%s\n\n", title);
 
     bool is_num = true;
     for (size_t k = 0; title[k]; k++) {
@@ -157,7 +158,9 @@ static DifErrors CheckType(Lang_t title, LangNode_t* node, VariableArr* arr) {
 }
 
 static int CountArgs(LangNode_t* args_root) {
-    if (!args_root) return 0;
+    if (!args_root) {
+        return 0;
+    }
 
     if (IsThatOperation(args_root, kOperationComma)) {
         return CountArgs(args_root->left) + CountArgs(args_root->right);
@@ -188,7 +191,9 @@ static void ScanInitsInSubtree(
 ) {
     assert(func_name_node);
     assert(arr);
-    if (!root) return;
+    if (!root) {
+        return;
+    }
 
     if (IsThatOperation(root, kOperationIs) && root->left &&
         root->left->type == kVariable) {
@@ -235,7 +240,6 @@ static DifErrors ParseMaybeNil(
     assert(out);
 
     SkipSpaces(buffer, pos);
-    // printf("DEBUG: nil node\n");
 
     if (strncmp(buffer + *pos, "nil", 3) == 0) {
         *pos += 3;
@@ -251,23 +255,33 @@ static DifErrors ParseTitle(const char* buffer, size_t* pos, char** out_title) {
     assert(pos);
     assert(out_title);
 
-    if (buffer[*pos] != '(') return PrintSyntaxErrorNode(*pos, buffer[*pos]);
+    if (buffer[*pos] != '(') {
+        return PrintSyntaxErrorNode(*pos, buffer[*pos]);
+    }
     (*pos)++;
     SkipSpaces(buffer, pos);
 
-    if (buffer[*pos] != '"') return PrintSyntaxErrorNode(*pos, buffer[*pos]);
+    if (buffer[*pos] != '"') {
+        return PrintSyntaxErrorNode(*pos, buffer[*pos]);
+    }
 
     (*pos)++;
     size_t start = *pos;
 
-    while (buffer[*pos] != '"' && buffer[*pos] != '\0') (*pos)++;
+    while (buffer[*pos] != '"' && buffer[*pos] != '\0') {
+        (*pos)++;
+    }
 
-    if (buffer[*pos] == '\0') return PrintSyntaxErrorNode(*pos, buffer[*pos]);
+    if (buffer[*pos] == '\0') {
+        return PrintSyntaxErrorNode(*pos, buffer[*pos]);
+    }
 
     size_t len = *pos - start;
 
     char* title = (char*)calloc(len + 1, 1);
-    if (!title) return kNoMemory;
+    if (!title) {
+        return kNoMemory;
+    }
 
     memcpy(title, buffer + start, len);
     title[len] = '\0';
@@ -285,7 +299,9 @@ static DifErrors ExpectClosingParen(const char* buffer, size_t* pos) {
 
     SkipSpaces(buffer, pos);
 
-    if (buffer[*pos] != ')') return PrintSyntaxErrorNode(*pos, buffer[*pos]);
+    if (buffer[*pos] != ')') {
+        return PrintSyntaxErrorNode(*pos, buffer[*pos]);
+    }
     (*pos)++;
 
     return kSuccess;
