@@ -22,7 +22,7 @@
 
 #define MAX_TEST_RESOURCE_BUFFER_SIZE_BYTES 16384
 
-const char* const RESOURCES_DIR = "build/tests/FrontEnd/resources/";
+const char* const RESOURCES_DIR = "./tests/FrontEnd/resources/";
 
 TEST_CASE("Testing conversion from code to tree and asm") {
     const char* test_cases[2] = {

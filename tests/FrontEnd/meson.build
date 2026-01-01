@@ -1,5 +1,3 @@
-subdir('resources')
-
 front_end_tests_sources = files('test.cpp')
 front_end_tests_lib = library(
     'front_end_tests',
