@@ -7,7 +7,10 @@
   outputs =
     inputs:
     inputs.flake-parts.lib.mkFlake { inherit inputs; } {
-      systems = [ "x86_64-linux" "aarch64-darwin" ];
+      systems = [
+        "x86_64-linux"
+        "aarch64-darwin"
+      ];
 
       perSystem =
         { system, pkgs, ... }:
@@ -23,18 +26,27 @@
           devShells.default = pkgs.mkShell.override { stdenv = gccStdenv; } {
             name = "Reproducible development environment";
 
-            packages = with pkgs; [
-              meson
-              ninja
-              pkg-config
-              nixfmt-rfc-style
-              gnumake
-              graphviz
-            ] ++ [
-              gccToolchain
-              llvmClangToolchain
-              llvmClangUnwrapped
-            ];
+            packages =
+              with pkgs;
+              [
+                meson
+                ninja
+                pkg-config
+                nixfmt-rfc-style
+                gnumake
+                graphviz
+                just
+                jq
+                ncurses
+                gnugrep
+                findutils
+                coreutils
+              ]
+              ++ [
+                gccToolchain
+                llvmClangToolchain
+                llvmClangUnwrapped
+              ];
 
             # These are needed for `clang-tidy` (and not only) to find GCC's std libs
             NIX_CFLAGS_COMPILE = [
