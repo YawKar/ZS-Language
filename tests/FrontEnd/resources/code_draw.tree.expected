@@ -1,0 +1,501 @@
+( ";"
+	nil
+
+	( "func"
+		( "adepio_maximus"
+			nil
+
+			nil
+		)
+
+		( ";"
+			nil
+
+			( ";"
+				( ";"
+					( ";"
+						( ";"
+							( ";"
+								( ";"
+									( ";"
+										( ";"
+											( ";"
+												( "="
+													( "radius"
+														nil
+
+														nil
+													)
+
+													( "0"
+														nil
+
+														nil
+													)
+												)
+
+												nil
+											)
+
+											( ";"
+												( "="
+													( "centrum_x"
+														nil
+
+														nil
+													)
+
+													( "0"
+														nil
+
+														nil
+													)
+												)
+
+												nil
+											)
+										)
+
+										( ";"
+											( "="
+												( "centrum_y"
+													nil
+
+													nil
+												)
+
+												( "0"
+													nil
+
+													nil
+												)
+											)
+
+											nil
+										)
+									)
+
+									( "scanf"
+										( "radius"
+											nil
+
+											nil
+										)
+
+										nil
+									)
+								)
+
+								( "scanf"
+									( "centrum_x"
+										nil
+
+										nil
+									)
+
+									nil
+								)
+							)
+
+							( "scanf"
+								( "centrum_y"
+									nil
+
+									nil
+								)
+
+								nil
+							)
+						)
+
+						( "if"
+							( ">"
+								( "radius"
+									nil
+
+									nil
+								)
+
+								( "16"
+									nil
+
+									nil
+								)
+							)
+
+							( ";"
+								( ";"
+									( ";"
+										( "printc"
+											( "18"
+												nil
+
+												nil
+											)
+
+											nil
+										)
+
+										( "printc"
+											( "81"
+												nil
+
+												nil
+											)
+
+											nil
+										)
+									)
+
+									( "printc"
+										( "81"
+											nil
+
+											nil
+										)
+
+										nil
+									)
+								)
+
+								( "exit"
+									nil
+
+									nil
+								)
+							)
+						)
+					)
+
+					( ";"
+						( ";"
+							( "="
+								( "radius_quadratus"
+									nil
+
+									nil
+								)
+
+								( "*"
+									( "radius"
+										nil
+
+										nil
+									)
+
+									( "radius"
+										nil
+
+										nil
+									)
+								)
+							)
+
+							nil
+						)
+
+						( ";"
+							( "="
+								( "y"
+									nil
+
+									nil
+								)
+
+								( "0"
+									nil
+
+									nil
+								)
+							)
+
+							nil
+						)
+					)
+				)
+
+				( "while"
+					( "<"
+						( "y"
+							nil
+
+							nil
+						)
+
+						( "32"
+							nil
+
+							nil
+						)
+					)
+
+					( ";"
+						( ";"
+							( ";"
+								( ";"
+									( "="
+										( "x"
+											nil
+
+											nil
+										)
+
+										( "0"
+											nil
+
+											nil
+										)
+									)
+
+									nil
+								)
+
+								( "while"
+									( "<"
+										( "x"
+											nil
+
+											nil
+										)
+
+										( "32"
+											nil
+
+											nil
+										)
+									)
+
+									( ";"
+										( ";"
+											( ";"
+												( ";"
+													( ";"
+														( "="
+															( "dx"
+																nil
+
+																nil
+															)
+
+															( "-"
+																( "x"
+																	nil
+
+																	nil
+																)
+
+																( "centrum_x"
+																	nil
+
+																	nil
+																)
+															)
+														)
+
+														nil
+													)
+
+													( ";"
+														( "="
+															( "dy"
+																nil
+
+																nil
+															)
+
+															( "-"
+																( "y"
+																	nil
+
+																	nil
+																)
+
+																( "centrum_y"
+																	nil
+
+																	nil
+																)
+															)
+														)
+
+														nil
+													)
+												)
+
+												( ";"
+													( "="
+														( "distantia_quadrata"
+															nil
+
+															nil
+														)
+
+														( "+"
+															( "*"
+																( "dx"
+																	nil
+
+																	nil
+																)
+
+																( "dx"
+																	nil
+
+																	nil
+																)
+															)
+
+															( "*"
+																( "dy"
+																	nil
+
+																	nil
+																)
+
+																( "dy"
+																	nil
+
+																	nil
+																)
+															)
+														)
+													)
+
+													nil
+												)
+											)
+
+											( "if"
+												( "<="
+													( "distantia_quadrata"
+														nil
+
+														nil
+													)
+
+													( "radius_quadratus"
+														nil
+
+														nil
+													)
+												)
+
+												( "else"
+													( ";"
+														( "printc"
+															( "43"
+																nil
+
+																nil
+															)
+
+															nil
+														)
+
+														( "printc"
+															( "43"
+																nil
+
+																nil
+															)
+
+															nil
+														)
+													)
+
+													( ";"
+														( "printc"
+															( "46"
+																nil
+
+																nil
+															)
+
+															nil
+														)
+
+														( "printc"
+															( "46"
+																nil
+
+																nil
+															)
+
+															nil
+														)
+													)
+												)
+											)
+										)
+
+										( ";"
+											( "="
+												( "x"
+													nil
+
+													nil
+												)
+
+												( "+"
+													( "x"
+														nil
+
+														nil
+													)
+
+													( "1"
+														nil
+
+														nil
+													)
+												)
+											)
+
+											nil
+										)
+									)
+								)
+							)
+
+							( "printc"
+								( "10"
+									nil
+
+									nil
+								)
+
+								nil
+							)
+						)
+
+						( ";"
+							( "="
+								( "y"
+									nil
+
+									nil
+								)
+
+								( "+"
+									( "y"
+										nil
+
+										nil
+									)
+
+									( "1"
+										nil
+
+										nil
+									)
+								)
+							)
+
+							nil
+						)
+					)
+				)
+			)
+		)
+	)
+)

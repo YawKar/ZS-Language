@@ -1,4 +1,7 @@
+#include <cstring>
 #define DOCTEST_CONFIG_TREAT_CHAR_STAR_AS_STRING
+#include <dirent.h>
+#include <regex.h>
 #include <stdio.h>
 
 #include <cstddef>
@@ -23,21 +26,36 @@
 #define MAX_TEST_RESOURCE_BUFFER_SIZE_BYTES 16384
 
 const char* const RESOURCES_DIR = "./tests/FrontEnd/resources/";
+const char* const CODE_SOURCE_REGEX = "^code_[[:alnum:]]+$";
 
 TEST_CASE("Testing conversion from code to tree") {
-    const char* test_cases[2] = {
-        "code_factorial",
-        "code_square",
-    };
+    regex_t code_source_regex;
+    REQUIRE(regcomp(&code_source_regex, CODE_SOURCE_REGEX, REG_EXTENDED) == 0);
 
-    for (size_t test_case_ix = 0; test_case_ix < ARRAY_LENGTH(test_cases);
-         test_case_ix++) {
-        char filename_input[255];
-        sprintf(
-            filename_input, "%s%s", RESOURCES_DIR, test_cases[test_case_ix]
-        );
+    DIR* resources = opendir(RESOURCES_DIR);
+    REQUIRE(resources != nullptr);
 
-        SUBCASE(test_cases[test_case_ix]) {
+    struct dirent* dp;
+    while ((dp = readdir(resources)) != nullptr) {
+        // Skip '..' and '.'
+        if (strcmp(dp->d_name, ".") == 0 || strcmp(dp->d_name, "..") == 0) {
+            continue;
+        }
+        // Skip unmatched
+        int reti = regexec(&code_source_regex, dp->d_name, 0, NULL, 0);
+        if (reti == REG_NOMATCH) {
+            continue;
+        } else if (reti != 0) {
+            char errmsg[200];
+            regerror(reti, &code_source_regex, errmsg, sizeof(errmsg));
+            regfree(&code_source_regex);
+            FAIL("Regex match failed: %s", errmsg);
+        }
+        // Now we got resource
+        char filename_input[300];
+        sprintf(filename_input, "%s%s", RESOURCES_DIR, dp->d_name);
+
+        SUBCASE(dp->d_name) {
             LangRoot root = {};
             LangRootCtor(&root);
 
@@ -68,12 +86,12 @@ TEST_CASE("Testing conversion from code to tree") {
             DtorVariableArray(&variable_array);
 
             // Getting expected tree
-            char filename_tree_expected[255];
+            char filename_tree_expected[300];
             sprintf(
                 filename_tree_expected,
                 "%s%s.tree.expected",
                 RESOURCES_DIR,
-                test_cases[test_case_ix]
+                dp->d_name
             );
             REQUIRE_OPEN_FILE(expected_file, filename_tree_expected, "r");
             const char* expected = ReadToBuf(
@@ -86,22 +104,37 @@ TEST_CASE("Testing conversion from code to tree") {
             REQUIRE(actual_tree_printed == expected);
         }
     }
+    regfree(&code_source_regex);
 }
 
 TEST_CASE("Testing conversion from code to asm") {
-    const char* test_cases[2] = {
-        "code_factorial",
-        "code_square",
-    };
+    regex_t code_source_regex;
+    REQUIRE(regcomp(&code_source_regex, CODE_SOURCE_REGEX, REG_EXTENDED) == 0);
 
-    for (size_t test_case_ix = 0; test_case_ix < ARRAY_LENGTH(test_cases);
-         test_case_ix++) {
-        char filename_input[255];
-        sprintf(
-            filename_input, "%s%s", RESOURCES_DIR, test_cases[test_case_ix]
-        );
+    DIR* resources = opendir(RESOURCES_DIR);
+    REQUIRE(resources != nullptr);
 
-        SUBCASE(test_cases[test_case_ix]) {
+    struct dirent* dp;
+    while ((dp = readdir(resources)) != nullptr) {
+        // Skip '..' and '.'
+        if (strcmp(dp->d_name, ".") == 0 || strcmp(dp->d_name, "..") == 0) {
+            continue;
+        }
+        // Skip unmatched
+        int reti = regexec(&code_source_regex, dp->d_name, 0, NULL, 0);
+        if (reti == REG_NOMATCH) {
+            continue;
+        } else if (reti != 0) {
+            char errmsg[200];
+            regerror(reti, &code_source_regex, errmsg, sizeof(errmsg));
+            regfree(&code_source_regex);
+            FAIL("Regex match failed: %s", errmsg);
+        }
+        // Now we got resource
+        char filename_input[300];
+        sprintf(filename_input, "%s%s", RESOURCES_DIR, dp->d_name);
+
+        SUBCASE(dp->d_name) {
             LangRoot root = {};
             LangRootCtor(&root);
 
@@ -136,12 +169,12 @@ TEST_CASE("Testing conversion from code to asm") {
             DtorVariableArray(&variable_array);
 
             // Getting expected asm
-            char filename_asm_expected[255];
+            char filename_asm_expected[300];
             sprintf(
                 filename_asm_expected,
                 "%s%s.asm.expected",
                 RESOURCES_DIR,
-                test_cases[test_case_ix]
+                dp->d_name
             );
             REQUIRE_OPEN_FILE(expected_file, filename_asm_expected, "r");
             const char* expected = ReadToBuf(
@@ -154,4 +187,5 @@ TEST_CASE("Testing conversion from code to asm") {
             REQUIRE(actual_asm_printed == expected);
         }
     }
+    regfree(&code_source_regex);
 }

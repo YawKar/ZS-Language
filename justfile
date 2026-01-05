@@ -101,6 +101,12 @@ debug meson_target sanitizers *ARGS: (build meson_target sanitizers)
     @just center_header "DEBUGGING"
     @{{ default_debugger }} --args $(just find_executable {{ meson_target }} {{ sanitizers }}) {{ ARGS }}
 
+# Delete build directory with all resources
+[group("Meta")]
+nuke:
+    @rm -rf {{ build_dir }}
+    @echo "Deleted build_dir='{{ build_dir }}'!"
+
 [group("Utils")]
 [private]
 find_executable meson_target sanitizers:

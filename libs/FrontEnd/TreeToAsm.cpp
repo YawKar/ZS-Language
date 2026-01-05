@@ -360,9 +360,11 @@ void PrintStatement(
                     );
                     FPRINTF("OUT\n");
                     break;
-                
+
                 case kOperationWriteChar:
-                    PrintExpr(file, stmt->left, arr, ram_base, param_count, asm_info);
+                    PrintExpr(
+                        file, stmt->left, arr, ram_base, param_count, asm_info
+                    );
                     FPRINTF("OUTC\n");
                     break;
 

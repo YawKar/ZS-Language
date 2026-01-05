@@ -261,7 +261,8 @@ LangNode_t* GetOp(Language* lang_info, LangNode_t* func) {
     assert(lang_info);
     assert(func);
 
-    // fprintf(stderr, "[DEBUG GetOp] Current token position: %zu\n", *(lang_info->tokens_pos));
+    // fprintf(stderr, "[DEBUG GetOp] Current token position: %zu\n",
+    // *(lang_info->tokens_pos));
     LangNode_t* stmt = NULL;
     size_t save_pos = (*lang_info->tokens_pos);
 
