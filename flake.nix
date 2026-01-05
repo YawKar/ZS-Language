@@ -29,6 +29,7 @@
             packages =
               with pkgs;
               [
+                git
                 meson
                 ninja
                 pkg-config
