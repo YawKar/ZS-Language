@@ -149,15 +149,10 @@ size_t CheckAndReturn(
         return 0;
     }
 
-    for (ssize_t i = 0; i < tokens->size; i++) {
-        if (tokens->data[i]->type == kOperation && tokens->data[i]->value.operation == kOperationIf) {
-            fprintf(stderr, "%d\n", 1);
-        }
-    }
-    fprintf(stderr, "%zu\n\n", Variable_Array->size);
-    for (size_t i = 0; i < Variable_Array->size; i++) {
-        fprintf(stderr, "%s %d\n\n", Variable_Array->var_array[i].variable_name, Variable_Array->var_array[i].variable_value);
-    }
+    // fprintf(stderr, "%zu\n\n", Variable_Array->size);
+    // for (size_t i = 0; i < Variable_Array->size; i++) {
+    //     fprintf(stderr, "%s %d\n\n", Variable_Array->var_array[i].variable_name, Variable_Array->var_array[i].variable_value);
+    // }
 
     return cnt;
 }
