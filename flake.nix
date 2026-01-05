@@ -33,7 +33,6 @@
                 ninja
                 pkg-config
                 nixfmt-rfc-style
-                gnumake
                 graphviz
                 just
                 jq
@@ -41,6 +40,7 @@
                 gnugrep
                 findutils
                 coreutils
+                gef
               ]
               ++ [
                 gccToolchain
@@ -63,7 +63,9 @@
               echo "  system:     ${system}"
               echo "  g++:        $(g++ -dumpversion)"
               echo "  gcc:        $(gcc -dumpversion)"
-              echo "  make:       $(make --version | head -1)"
+              echo "  gef:        $(gef --version | head -1)"
+              echo "  just:       $(just --version)"
+              echo "  graphviz:   $(dot --version 2>&1)"
               echo "  meson:      $(meson --version)"
               echo "  clang-tidy: $(clang-tidy --version | grep -Eo 'version .*')"
             '';
