@@ -5,6 +5,10 @@ default:
     @just --list --unsorted
 
 build_dir := "build"
+
+# these are popular sanitizers combos
+
+none := "none"
 asan_and_ubsan := "address,undefined"
 tsan_and_ubsan := "thread,undefined"
 default_sanitizers := asan_and_ubsan
@@ -60,21 +64,74 @@ reverse-tests-run sanitizers=default_sanitizers: (run "tests_exe" sanitizers '-s
 
 [group("All")]
 all-build:
-    @just --summary | grep -Eo "\w+-build" | grep -v "all-build" | xargs -I SUBST just SUBST
+    @just --summary | grep -Eo "[[:alnum:]\-]+-build" | grep -vE "all-build|ci" | xargs -I SUBST just SUBST
 
 [group("All")]
 all-tests-run sanitizers=default_sanitizers: (run "tests_exe" sanitizers)
 
-[group("Meta")]
-fmt only_check="false":
-    just --unstable --fmt
-    nixfmt -s -v flake.nix
-    meson format -r {{ if only_check == "false" { "-i" } else { "--check-only" } }}
-    find bins libs tests -type f -name "*.c" -o -name "*.cpp" -o -name "*.h" -o -name "*.hpp" | xargs clang-format --Werror {{ if only_check == "false" { "-i" } else { "--dry-run" } }}
+[group("CI")]
+ci-check-format: (fmt "check")
+
+[group("CI")]
+ci-check-lint: (lint "check")
+
+[group("CI")]
+ci-check-build: all-build
+
+[group("CI")]
+ci-check-tests: all-tests-run
 
 [group("Meta")]
-lint only_check="false" sanitizers=default_sanitizers: (ensure_build_dir_setup sanitizers)
-    run-clang-tidy -quiet -p {{ build_dir / sanitizers }} {{ if only_check == "false" { "-fix" } else { "" } }} bins libs tests
+[script]
+fmt mode="format":
+    just_flags=''
+    nixfmt_flags=''
+    meson_flags=''
+    clang_format_flags=''
+
+    case "{{ mode }}" in
+      "check")
+        just_flags='--check'
+        nixfmt_flags='--check'
+        meson_flags='--check-only'
+        clang_format_flags='--dry-run'
+        ;;
+      "format")
+        just_flags=''
+        nixfmt_flags=''
+        meson_flags='--inplace'
+        clang_format_flags='-i'
+        ;;
+      *)
+        echo "Unknown `just fmt` mode: {{ mode }}"
+        exit 1
+        ;;
+    esac
+
+    just --unstable --fmt $just_flags
+    nixfmt -s -v $nixfmt_flags flake.nix
+    meson format -r $meson_flags
+    find bins libs tests -type f -name "*.c" -o -name "*.cpp" -o -name "*.h" -o -name "*.hpp" | xargs clang-format --Werror $clang_format_flags
+
+[group("Meta")]
+[script]
+lint mode="fix" sanitizers=default_sanitizers: (ensure_build_dir_setup sanitizers)
+    run_clang_tidy_flags=''
+
+    case "{{ mode }}" in
+      "check")
+        run_clang_tidy_flags=''
+        ;;
+      "fix")
+        run_clang_tidy_flags='-fix'
+        ;;
+      *)
+        echo "Unknown `just lint` mode: {{ mode }}"
+        exit 1
+        ;;
+    esac
+
+    run-clang-tidy -quiet -p {{ build_dir / sanitizers }} $run_clang_tidy_flags bins libs tests
 
 [group("Meta")]
 [private]
