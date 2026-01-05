@@ -174,10 +174,9 @@ static void FindVarPosPopMN(
 
     int var_idx = -1;
     for (size_t i = 0; i < arr->size; i++) {
-        if (strncmp(
+        if (strcmp(
                 arr->var_array[i].variable_name,
-                arr->var_array[node->value.pos].variable_name,
-                strlen(arr->var_array[i].variable_name)
+                arr->var_array[node->value.pos].variable_name
             ) == 0) {
             if (arr->var_array[i].pos_in_code == -1) {
                 var_idx = arr->var_array[i].pos_in_code = asm_info->counter++;
@@ -221,10 +220,9 @@ static int FindVarPos(
 
     int var_idx = -1;
     for (size_t i = 0; i < arr->size; i++) {
-        if (strncmp(
+        if (strcmp(
                 arr->var_array[i].variable_name,
-                arr->var_array[node->value.pos].variable_name,
-                strlen(arr->var_array[i].variable_name)
+                arr->var_array[node->value.pos].variable_name
             ) == 0) {
             if (arr->var_array[i].pos_in_code == -1) {
                 var_idx = arr->var_array[i].pos_in_code = asm_info->counter++;
@@ -361,6 +359,11 @@ void PrintStatement(
                         file, stmt->left, arr, ram_base, param_count, asm_info
                     );
                     FPRINTF("OUT\n");
+                    break;
+                
+                case kOperationWriteChar:
+                    PrintExpr(file, stmt->left, arr, ram_base, param_count, asm_info);
+                    FPRINTF("OUTC\n");
                     break;
 
                 case kOperationRead:

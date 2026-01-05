@@ -301,9 +301,11 @@ static GraphOperation PrintExpressionType(const LangNode_t* node) {
         case (kOperationComma):
             return {",", "thistle"};
         case (kOperationWrite):
-            return {"write", "	tan"};
+            return {"write", "tan"};
+        case (kOperationWriteChar):
+            return {"write char", "cadetblue1"};
         case (kOperationRead):
-            return {"read", " tan"};
+            return {"read", "tan"};
         case (kOperationReturn):
             return {"return", "tan"};
         case (kOperationB):

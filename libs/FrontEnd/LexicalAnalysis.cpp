@@ -144,15 +144,20 @@ size_t CheckAndReturn(
             continue;
         }
 
+        fprintf(stderr, "Lexer остановлен на: '%c' (0x%02x), cnt=%zu\n", **string, **string, cnt);
+
         return 0;
     }
 
-    // fprintf(stderr, "%zu\n\n", Variable_Array->size);
-    // for (size_t i = 0; i < Variable_Array->size; i++) {
-    //     fprintf(stderr, "%s %d\n\n",
-    //     Variable_Array->var_array[i].variable_name,
-    //     Variable_Array->var_array[i].variable_value);
-    // }
+    for (ssize_t i = 0; i < tokens->size; i++) {
+        if (tokens->data[i]->type == kOperation && tokens->data[i]->value.operation == kOperationIf) {
+            fprintf(stderr, "%d\n", 1);
+        }
+    }
+    fprintf(stderr, "%zu\n\n", Variable_Array->size);
+    for (size_t i = 0; i < Variable_Array->size; i++) {
+        fprintf(stderr, "%s %d\n\n", Variable_Array->var_array[i].variable_name, Variable_Array->var_array[i].variable_value);
+    }
 
     return cnt;
 }
